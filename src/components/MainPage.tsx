@@ -173,7 +173,7 @@ export function MainPage({ onLogout }: MainPageProps) {
     if (server.categories.length > 0 && server.categories[0].channels.length > 0) {
       handleChannelSelect(server.categories[0].channels[0]);
     } else {
-      setSelectedChannel(null as any);
+      setSelectedChannel(null);
     }
   };
 
@@ -273,7 +273,7 @@ export function MainPage({ onLogout }: MainPageProps) {
     // If the deleted channel was selected, select the first available channel
     if (selectedChannel?.id === channelId) {
       const firstChannel = updatedServers.find(s => s.id === selectedServer.id)?.categories[0]?.channels[0];
-      setSelectedChannel(firstChannel || null as any);
+      setSelectedChannel(firstChannel || null);
     }
   };
 
