@@ -19,8 +19,8 @@ export function WindowFrame({ children, title = "Application", onClose, onMinimi
   const [isMobile, setIsMobile] = useState(false);
 
   // Calculate initial center position
-  const initialWidth = window.innerWidth * 0.8;
-  const initialHeight = window.innerHeight * 0.8;
+  const initialWidth = window.innerWidth * 0.88;
+  const initialHeight = window.innerHeight * 0.88;
   const initialX = (window.innerWidth - initialWidth) / 2;
   const initialY = (window.innerHeight - initialHeight) / 2;
 
@@ -110,8 +110,8 @@ export function WindowFrame({ children, title = "Application", onClose, onMinimi
   // Initial centering and size
   useEffect(() => {
     if (windowRef.current && !isMaximized && !isMinimized && !isMobile) {
-      const initialWidth = window.innerWidth * 0.8;
-      const initialHeight = window.innerHeight * 0.8;
+      const initialWidth = window.innerWidth * 0.88;
+      const initialHeight = window.innerHeight * 0.88;
       const initialX = (window.innerWidth - initialWidth) / 2;
       const initialY = (window.innerHeight - initialHeight) / 2;
 
@@ -165,6 +165,7 @@ export function WindowFrame({ children, title = "Application", onClose, onMinimi
         <Button variant="ghost" size="sm">File</Button>
         <Button variant="ghost" size="sm">Edit</Button>
         <Button variant="ghost" size="sm">View</Button>
+        <Button variant="ghost" size="sm">Settings</Button>
       </div>
 
       {/* Content Area */}
