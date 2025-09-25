@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Minus, Square, X, Maximize2, Minimize2 } from 'lucide-react'; // Icons for controls
+import { Minus, Square, X, Maximize2, Minimize2 } from 'lucide-react';
 
 interface WindowFrameProps {
   children: React.ReactNode;
@@ -18,23 +18,27 @@ export function WindowFrame({ children, title = "Application", onClose, onMinimi
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
-  // Calculate initial center position
-  const initialWidth = window.innerWidth * 0.88;
-  const initialHeight = window.innerHeight * 0.88;
-  const initialX = (window.innerWidth - initialWidth) / 2;
-  const initialY = (window.innerHeight - initialHeight) / 2;
-
-  const [position, setPosition] = useState({ x: initialX, y: initialY });
-  const [size, setSize] = useState({ width: initialWidth, height: initialHeight });
-
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [size, setSize] = useState({ width: 800, height: 600 }); // 기본값
   const windowRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
 
-  // Detect mobile screen size
+  useEffect(() => {
+    if (typeof window !== "undefined" && !isMobile) {
+      const initialWidth = window.innerWidth * 0.88;
+      const initialHeight = window.innerHeight * 0.88;
+      const initialX = (window.innerWidth - initialWidth) / 2;
+      const initialY = (window.innerHeight - initialHeight) / 2;
+
+      setPosition({ x: initialX, y: initialY });
+      setSize({ width: initialWidth, height: initialHeight });
+    }
+  }, [isMobile]);
+
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 768); // Example breakpoint for mobile
+      setIsMobile(window.innerWidth < 768);
     };
     handleResize();
     window.addEventListener('resize', handleResize);
@@ -42,20 +46,17 @@ export function WindowFrame({ children, title = "Application", onClose, onMinimi
   }, []);
 
   const handleClose = () => {
-    if (onClose) onClose();
-    console.log("Close button clicked");
+    onClose?.();
   };
 
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
-    if (onMinimize) onMinimize();
-    console.log("Minimize button clicked");
+    onMinimize?.();
   };
 
   const handleMaximize = () => {
     setIsMaximized(!isMaximized);
-    if (onMaximize) onMaximize();
-    console.log("Maximize button clicked");
+    onMaximize?.();
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -74,17 +75,11 @@ export function WindowFrame({ children, title = "Application", onClose, onMinimi
     let newX = e.clientX - offset.x;
     let newY = e.clientY - offset.y;
 
-    // Get current window dimensions
     const windowWidth = windowRef.current.offsetWidth;
     const windowHeight = windowRef.current.offsetHeight;
 
-    // Clamp X position
-    newX = Math.max(0, newX);
-    newX = Math.min(newX, window.innerWidth - windowWidth);
-
-    // Clamp Y position
-    newY = Math.max(0, newY);
-    newY = Math.min(newY, window.innerHeight - windowHeight);
+    newX = Math.max(0, Math.min(newX, window.innerWidth - windowWidth));
+    newY = Math.max(0, Math.min(newY, window.innerHeight - windowHeight));
 
     setPosition({ x: newX, y: newY });
   };
@@ -97,55 +92,38 @@ export function WindowFrame({ children, title = "Application", onClose, onMinimi
     if (isDragging) {
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = "grabbing";
     } else {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = "";
     };
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = "";
     };
   }, [isDragging]);
-
-  // Initial centering and size
-  useEffect(() => {
-    if (windowRef.current && !isMaximized && !isMinimized && !isMobile) {
-      const initialWidth = window.innerWidth * 0.88;
-      const initialHeight = window.innerHeight * 0.88;
-      const initialX = (window.innerWidth - initialWidth) / 2;
-      const initialY = (window.innerHeight - initialHeight) / 2;
-
-      setPosition({ x: initialX, y: initialY });
-      setSize({ width: initialWidth, height: initialHeight });
-    }
-  }, [isMaximized, isMinimized, isMobile]);
-
 
   return (
     <Card 
       ref={windowRef}
       className={`fixed bg-background border border-border shadow-lg flex flex-col overflow-hidden transition-all duration-300 ease-in-out
-        ${
-          isMobile || isMaximized ? 'w-screen h-screen rounded-none top-0 left-0' : 'rounded-lg'
-        }
-        ${
-          isMinimized ? 'bottom-0 left-0 h-12 w-64' : ''
-        }
+        ${ isMobile || isMaximized ? 'w-screen h-screen rounded-none top-0 left-0' : 'rounded-lg' }
+        ${ isMinimized ? 'bottom-0 left-0 h-12 w-64 cursor-pointer' : '' }
       `}
       style={isMaximized || isMinimized || isMobile ? {} : { top: `${position.y}px`, left: `${position.x}px`, width: `${size.width}px`, height: `${size.height}px` }}
-      onClick={isMinimized ? handleMinimize : undefined} // Restore on click if minimized
+      onDoubleClick={isMinimized ? handleMinimize : undefined}
     >
       {/* Title Bar */}
       <div 
         className={`flex items-center justify-between bg-muted text-muted-foreground p-2 border-b border-border flex-shrink-0
-          ${
-            isMobile ? '' : 'cursor-grab'
-          }
+          ${ isMobile ? '' : 'cursor-grab' }
         `}
         onMouseDown={isMobile ? undefined : handleMouseDown}
       >
         <span className="text-sm font-medium">{title}</span>
-        {!isMobile && ( // Hide controls on mobile
+        {!isMobile && (
           <div className="flex space-x-1">
             <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleMinimize} title={isMinimized ? "Restore" : "Minimize"}>
               {isMinimized ? <Minimize2 className="h-4 w-4" /> : <Minus className="h-4 w-4" />}

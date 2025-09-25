@@ -13,9 +13,9 @@ interface ThreadViewProps {
 }
 
 export function ThreadView({ originalMessage, users, onClose, onReply, renderMessage }: ThreadViewProps) {
-  if (!originalMessage) return null;
-
   const [reply, setReply] = useState("");
+
+  if (!originalMessage) return null;
 
   const handleSendReply = () => {
     if (reply.trim() === "") return;
@@ -27,20 +27,22 @@ export function ThreadView({ originalMessage, users, onClose, onReply, renderMes
     <div className="w-full h-full bg-gray-900 border-l border-gray-700 flex flex-col z-10">
       <div className="p-3 border-b border-gray-700 flex justify-between items-center">
         <h3 className="font-bold">Thread</h3>
-        <button onClick={onClose}><X size={20}/></button>
+        <button onClick={onClose}>
+          <X size={20}/>
+        </button>
       </div>
       
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {/* Render the original message */}
         {renderMessage(originalMessage, null)}
 
         <hr className="border-gray-700"/>
 
-        <div className="text-center text-sm text-gray-400">{(originalMessage.thread || []).length} replies</div>
+        <div className="text-center text-sm text-gray-400">
+          {(originalMessage.thread || []).length} replies
+        </div>
 
-        {/* Render thread replies */}
         {(originalMessage.thread || []).map((replyMsg, index, arr) => (
-            renderMessage(replyMsg, index > 0 ? arr[index - 1] : null)
+          renderMessage(replyMsg, index > 0 ? arr[index - 1] : null)
         ))}
       </div>
 

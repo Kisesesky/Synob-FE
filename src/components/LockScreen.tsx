@@ -11,53 +11,47 @@ interface LockScreenProps {
 }
 
 export function LockScreen({ onLogin }: LockScreenProps) {
-  // Main state (for clock/weather)
   const [time, setTime] = useState(new Date());
   const [city, setCity] = useState('Loading...');
   const [temperature, setTemperature] = useState<number | null>(null);
   const [weatherCondition, setWeatherCondition] = useState('...');
 
-  // UI state
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
-  const [contentScale, setContentScale] = useState(0.81); // Initial scale
-  const [isMobile, setIsMobile] = useState(false); // New state for mobile detection
+  const [contentScale, setContentScale] = useState(0.81);
+  const [isMobile, setIsMobile] = useState(false);
 
-  // Clock update
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
-  // Responsive content scaling and mobile detection
   useEffect(() => {
+    if (typeof window === "undefined") return;
     const handleResize = () => {
-      const mobile = window.innerWidth < 768; // Example breakpoint for mobile
+      const mobile = window.innerWidth < 768;
       setIsMobile(mobile);
       setContentScale(mobile ? 1 : 0.81);
     };
-
-    handleResize(); // Apply on mount
-    window.addEventListener('resize', handleResize); // Apply on resize
-    return () => window.removeEventListener('resize', handleResize); // Cleanup
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
 
-  // Fetch location and weather
   const fetchWeatherAndLocation = async (location: { latitude: number; longitude: number }) => {
     try {
-      // Reverse geocode to get city name in English
-      const cityResponse = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${location.latitude}&lon=${location.longitude}&accept-language=en`);
-      const cityData = await cityResponse.json();
-      const cityName = cityData.address.city || cityData.address.town || cityData.address.village || 'Unknown';
-      setCity(cityName);
+      const [cityResponse, weatherResponse] = await Promise.all([
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${location.latitude}&lon=${location.longitude}&accept-language=en`),
+        fetch(`https://api.open-meteo.com/v1/forecast?latitude=${location.latitude}&longitude=${location.longitude}&current_weather=true&weather_code=true`)
+      ]);
 
-      // Fetch weather
-      const weatherResponse = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${location.latitude}&longitude=${location.longitude}&current_weather=true&weather_code=true`);
+      const cityData = await cityResponse.json();
       const weatherData = await weatherResponse.json();
+
+      setCity(cityData.address.city || cityData.address.town || cityData.address.village || 'Unknown');
       setTemperature(Math.round(weatherData.current_weather.temperature));
       setWeatherCondition(getWeatherCondition(weatherData.current_weather.weathercode));
-
     } catch (error) {
       console.error("Error fetching data:", error);
       setCity('Error');
@@ -67,13 +61,11 @@ export function LockScreen({ onLogin }: LockScreenProps) {
     }
   };
 
-  // Initial load effect
   useEffect(() => {
-    if (navigator.geolocation) {
+    if (typeof window !== "undefined" && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => fetchWeatherAndLocation(position.coords),
-        (error) => {
-          console.error("Geolocation error:", error);
+        () => {
           setCity("Location access denied");
           toast.error("Location access was denied.");
         }
@@ -102,9 +94,9 @@ export function LockScreen({ onLogin }: LockScreenProps) {
   };
 
   const handleLoginAttempt = () => {
-    // Simple hardcoded password for mock authentication
-    if (password === '1234') {
-      onLogin(); // Notify parent (AppEntry) that login is successful
+    const correctPassword = process.env.NEXT_PUBLIC_LOCK_PASSWORD || "1234";
+    if (password === correctPassword) {
+      onLogin();
       toast.success("Logged in successfully!");
     } else {
       setLoginError("Incorrect password");
@@ -118,9 +110,10 @@ export function LockScreen({ onLogin }: LockScreenProps) {
       
       {/* Main Clock and Weather Display */}
       <div 
-        className={`
-          ${isMobile ? 'flex flex-col items-center justify-center h-screen w-full' : 'absolute time-container translate-x-[-50%] translate-y-[-50%] w-[85vw] max-w-none'}
-        `}
+        className={isMobile 
+          ? "flex flex-col items-center justify-center h-screen w-full" 
+          : "absolute translate-x-[-50%] translate-y-[-50%] w-[85vw] max-w-none"
+        }
         style={isMobile ? {} : { top: "calc(50% + 0.5px)", left: "calc(50% + 0.5px)" }}
       >
         <div className="flex flex-col justify-center items-center" style={isMobile ? {} : { transform: `scale(${contentScale})` }}>
@@ -149,7 +142,7 @@ export function LockScreen({ onLogin }: LockScreenProps) {
               <Input
                 type="password"
                 placeholder="Enter password"
-                className="mb-4 w-full text-center"
+                className={`mb-4 w-full text-center ${loginError ? "animate-shake border-red-400" : ""}`}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleLoginAttempt()}

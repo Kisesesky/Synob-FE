@@ -9,19 +9,16 @@ export default function AppEntry() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Background hook
   const { background } = useBackground();
 
-  // Global background management
   useEffect(() => {
     const body = document.body;
-    // Clear previous background styles
     body.classList.remove('custom-background');
     body.style.removeProperty('--custom-bg-url');
     const existingVideo = document.querySelector('.background-video');
     if (existingVideo) existingVideo.remove();
 
-    if (!isLoggedIn && background) { // Only apply custom background if not logged in (i.e., on LockScreen)
+    if (!isLoggedIn && background) {
       if (background.type === 'photo') {
         body.style.setProperty('--custom-bg-url', `url(${background.url})`);
         body.classList.add('custom-background');
@@ -35,16 +32,15 @@ export default function AppEntry() {
         videoEl.src = background.url;
         document.body.appendChild(videoEl);
 
-        // Responsive Scale and center the video background
         const handleResize = () => {
-          const isMobile = window.innerWidth < 768; // Example breakpoint for mobile
+          const isMobile = window.innerWidth < 768;
           if (isMobile) {
             videoEl.style.width = '100vw';
             videoEl.style.height = '100vh';
             videoEl.style.top = '0';
             videoEl.style.left = '0';
-            videoEl.style.transform = 'none'; // Remove transform for full screen
-            videoEl.style.borderRadius = '0'; // Remove border radius for full screen
+            videoEl.style.transform = 'none';
+            videoEl.style.borderRadius = '0';
           } else {
             videoEl.style.width = '81vw';
             videoEl.style.height = '81vh';
@@ -56,12 +52,12 @@ export default function AppEntry() {
           }
         };
 
-        handleResize(); // Apply on mount
-        window.addEventListener('resize', handleResize); // Apply on resize
-        return () => window.removeEventListener('resize', handleResize); // Cleanup
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
       }
-    } else if (isLoggedIn) { // If logged in, set a solid background
-      body.style.backgroundColor = 'black'; // Or any theme color
+    } else if (isLoggedIn) {
+      body.style.backgroundColor = 'black';
       body.style.backgroundImage = 'none';
     }
   }, [isLoggedIn, background]);

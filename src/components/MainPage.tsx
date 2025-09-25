@@ -1,35 +1,28 @@
 'use client';
 
+import { Button } from "@/components/ui/button";
+import {
+  Dialog, DialogContent, DialogFooter, DialogHeader,
+  DialogTitle, DialogTrigger
+} from "@/components/ui/dialog";
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuPortal,
+  DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubContent,
+  DropdownMenuSubTrigger, DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { WindowFrame } from '@/components/WindowFrame';
-import { Button } from "@/components/ui/button"
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuPortal,
-} from "@/components/ui/dropdown-menu"
-import { UserProfileModal } from './UserProfileModal';
 import { ThreadView } from './ThreadView';
+import { UserProfileModal } from './UserProfileModal';
 
-import { useState, useRef, useEffect } from 'react';
-import { Plus, Settings, Hash, ChevronDown, ChevronRight, Users, Cog, File as FileIcon, Smile, Search, Bell, BellOff, MessageSquare as MessageSquareIcon, Trash2, Edit } from 'lucide-react';
+import { 
+  BellOff, ChevronDown, ChevronRight, File as FileIcon, Hash,
+  MessageSquare as MessageSquareIcon, Plus, Settings 
+} from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import Image from "next/image";
 
-// INTERFACES
 export interface MainPageProps {
   onLogout: () => void;
 }
@@ -59,14 +52,14 @@ export interface User {
 }
 
 export interface Message {
-    id: number;
-    text?: string; // Optional
-    authorId: number;
-    timestamp: string;
-    file?: { name: string; type: string; url: string; };
-    reactions?: { [emoji: string]: number[] };
-    thread?: Message[];
-    channelId?: number; // For search results
+  id: number;
+  text?: string;
+  authorId: number;
+  timestamp: string;
+  file?: { name: string; type: string; url: string; };
+  reactions?: { [emoji: string]: number[] };
+  thread?: Message[];
+  channelId?: number;
 }
 
 export function MainPage({ onLogout }: MainPageProps) {
@@ -82,7 +75,9 @@ export function MainPage({ onLogout }: MainPageProps) {
       ],
     },
     {
-      id: 2, name: 'Next.js', icon: 'N',
+      id: 2,
+      name: 'Next.js',
+      icon: 'N',
       categories: [
         { id: 3, name: 'Documentation', channels: [{ id: 5, name: 'getting-started' }, { id: 6, name: 'routing' }] },
       ],
@@ -92,24 +87,24 @@ export function MainPage({ onLogout }: MainPageProps) {
   const [currentUser, setCurrentUser] = useState<User>({ id: 1, name: "Me", avatar: "M" });
 
   const [users, setUsers] = useState<{[id: number]: User}>({
-      1: { id: 1, name: "Me", avatar: "M" },
-      2: { id: 2, name: "Gemini", avatar: "G" },
-      3: { id: 3, name: "Admin", avatar: "A" },
-      4: { id: 4, name: "User1", avatar: "U" },
+    1: { id: 1, name: "Me", avatar: "M" },
+    2: { id: 2, name: "Gemini", avatar: "G" },
+    3: { id: 3, name: "Admin", avatar: "A" },
+    4: { id: 4, name: "User1", avatar: "U" },
   });
 
   const [messages, setMessages] = useState<{[key: number]: Message[]}>({
-      1: [
-          {id: 1, authorId: 2, text: "안녕하세요! Synology 서버의 채팅 채널에 오신 것을 환영합니다.", timestamp: "10:00", reactions: {'👍': [2, 3, 4]}},
-          {id: 2, authorId: 1, text: "안녕하세요!", timestamp: "10:01"},
-          {id: 3, authorId: 1, text: "이 기능은 메시지 그룹핑 테스트를 위한 기능입니다.", timestamp: "10:01"},
-      ],
-      2: [{id: 4, authorId: 3, text: "6월 공지사항입니다.", timestamp: "11:30"}],
-      3: [{id: 5, authorId: 4, text: "React 19 변경사항 다들 보셨나요?", timestamp: "14:00"}],
+    1: [
+      {id: 1, authorId: 2, text: "안녕하세요! Synology 서버의 채팅 채널에 오신 것을 환영합니다.", timestamp: "10:00", reactions: {'👍': [2, 3, 4]}},
+      {id: 2, authorId: 1, text: "안녕하세요!", timestamp: "10:01"},
+      {id: 3, authorId: 1, text: "이 기능은 메시지 그룹핑 테스트를 위한 기능입니다.", timestamp: "10:01"},
+    ],
+    2: [{id: 4, authorId: 3, text: "6월 공지사항입니다.", timestamp: "11:30"}],
+    3: [{id: 5, authorId: 4, text: "React 19 변경사항 다들 보셨나요?", timestamp: "14:00"}],
   });
 
   const [selectedServer, setSelectedServer] = useState<Server>(servers[0]);
-  const [selectedChannel, setSelectedChannel] = useState<Channel>(servers[0].categories[0].channels[0]);
+  const [selectedChannel, setSelectedChannel] = useState<Channel | null>(servers[0].categories[0].channels[0]);
   const [openCategories, setOpenCategories] = useState<{[key: number]: boolean}>({1: true, 2: true, 3: true});
   const [unreadChannels, setUnreadChannels] = useState<{[key: number]: boolean}>({});
   const [notificationSettings, setNotificationSettings] = useState<{[channelId: number]: 'all' | 'mentions' | 'none'}>({});
@@ -131,6 +126,7 @@ export function MainPage({ onLogout }: MainPageProps) {
   const [isSearching, setIsSearching] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<Message[]>([]);
+  const [contextMenu, setContextMenu] = useState<{ type: string; id: string | number } | null>(null);
 
   // Edit states
   const [editingServer, setEditingServer] = useState<Server | null>(null);
@@ -145,29 +141,29 @@ export function MainPage({ onLogout }: MainPageProps) {
   const [editingMessageId, setEditingMessageId] = useState<number | null>(null);
   const [editedMessageText, setEditedMessageText] = useState("");
 
-  // EFFECTS
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, selectedChannel, searchResults]);
 
-  // HANDLERS
   const handleSearch = () => {
     if (searchQuery.trim() === "") {
-        setIsSearching(false);
-        setSearchResults([]);
-        return;
+      setIsSearching(false);
+      setSearchResults([]);
+      return;
     }
+
     setIsSearching(true);
     const results: Message[] = [];
+
     selectedServer.categories.forEach(category => {
-        category.channels.forEach(channel => {
-            const channelMessages = messages[channel.id] || [];
-            channelMessages.forEach(msg => {
-                if (msg.text?.toLowerCase().includes(searchQuery.toLowerCase())) {
-                    results.push({ ...msg, channelId: channel.id });
-                }
-            });
+      category.channels.forEach(channel => {
+        const channelMessages = messages[channel.id] || [];
+        channelMessages.forEach(msg => {
+          if (msg.text?.toLowerCase().includes(searchQuery.toLowerCase())) {
+            results.push({ ...msg, channelId: channel.id });
+          }
         });
+      });
     });
     setSearchResults(results);
   };
@@ -267,39 +263,39 @@ export function MainPage({ onLogout }: MainPageProps) {
   const handleDeleteChannel = (channelId: number) => {
     if (!window.confirm("정말로 이 채널을 삭제하시겠습니까?")) return;
     const updatedServers = servers.map(server => ({
-        ...server,
-        categories: server.categories.map(category => ({
-            ...category,
-            channels: category.channels.filter(c => c.id !== channelId)
-        }))
-    }));
+      ...server,
+      categories: server.categories.map(category => ({
+        ...category,
+        channels: category.channels.filter(c => c.id !== channelId)
+    }))
+  }));
     setServers(updatedServers);
     // If the deleted channel was selected, select the first available channel
     if (selectedChannel?.id === channelId) {
-        const firstChannel = updatedServers.find(s => s.id === selectedServer.id)?.categories[0]?.channels[0];
-        setSelectedChannel(firstChannel || null as any);
+      const firstChannel = updatedServers.find(s => s.id === selectedServer.id)?.categories[0]?.channels[0];
+      setSelectedChannel(firstChannel || null as any);
     }
   };
 
   const handleDeleteCategory = (categoryId: number) => {
-      if (!window.confirm("정말로 이 카테고리를 삭제하시겠습니까? 카테고리 안의 모든 채널이 삭제됩니다.")) return;
-      const updatedServers = servers.map(server => ({
-          ...server,
-          categories: server.categories.filter(c => c.id !== categoryId)
-      }));
-      setServers(updatedServers);
+    if (!window.confirm("정말로 이 카테고리를 삭제하시겠습니까? 카테고리 안의 모든 채널이 삭제됩니다.")) return;
+    const updatedServers = servers.map(server => ({
+      ...server,
+      categories: server.categories.filter(c => c.id !== categoryId)
+    }));
+    setServers(updatedServers);
   };
 
   const handleSendMessage = () => {
-      if (currentMessage.trim() === "" || !selectedChannel) return;
-      const newMessage: Message = {
-          id: Date.now(),
-          authorId: currentUser.id,
-          text: currentMessage,
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      };
-      setMessages(prev => ({ ...prev, [selectedChannel.id]: [...(prev[selectedChannel.id] || []), newMessage] }));
-      setCurrentMessage("");
+    if (currentMessage.trim() === "" || !selectedChannel) return;
+    const newMessage: Message = {
+      id: Date.now(),
+      authorId: currentUser.id,
+      text: currentMessage,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+    setMessages(prev => ({ ...prev, [selectedChannel.id]: [...(prev[selectedChannel.id] || []), newMessage] }));
+    setCurrentMessage("");
   }
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -307,30 +303,32 @@ export function MainPage({ onLogout }: MainPageProps) {
     if (!file || !selectedChannel) return;
 
     const reader = new FileReader();
-    reader.onload = (e) => {
-        const newFileMessage: Message = {
-            id: Date.now(),
-            authorId: currentUser.id,
-            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            file: {
-                name: file.name,
-                type: file.type,
-                url: e.target?.result as string,
-            }
-        };
-        setMessages(prev => ({ ...prev, [selectedChannel.id]: [...(prev[selectedChannel.id] || []), newFileMessage] }));
+    reader.onload = (e: ProgressEvent<FileReader>) => {
+      const result = e.target?.result;
+    
+      const newFileMessage: Message = {
+        id: Date.now(),
+        authorId: currentUser.id,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        file: {
+          name: file.name,
+          type: file.type,
+          url: e.target?.result as string,
+        }
+      };
+      setMessages(prev => ({ ...prev, [selectedChannel.id]: [...(prev[selectedChannel.id] || []), newFileMessage] }));
     };
 
     if (file.type.startsWith('image/')) {
-        reader.readAsDataURL(file);
+      reader.readAsDataURL(file);
     } else {
         const newFileMessage: Message = {
-            id: Date.now(),
-            authorId: currentUser.id,
-            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            file: { name: file.name, type: file.type, url: '' } 
+          id: Date.now(),
+          authorId: currentUser.id,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          file: { name: file.name, type: file.type, url: '' } 
         };
-        setMessages(prev => ({ ...prev, [selectedChannel.id]: [...(prev[selectedChannel.id] || []), newFileMessage] }));
+      setMessages(prev => ({ ...prev, [selectedChannel.id]: [...(prev[selectedChannel.id] || []), newFileMessage] }));
     }
     event.target.value = '';
   };
@@ -369,23 +367,23 @@ export function MainPage({ onLogout }: MainPageProps) {
   const handleReaction = (messageId: number, emoji: string) => {
     if (!selectedChannel) return;
     setMessages(prev => ({
-        ...prev,
-        [selectedChannel.id]: prev[selectedChannel.id].map(msg => {
-            if (msg.id === messageId) {
-                const reactions = { ...(msg.reactions || {}) };
-                const userList = reactions[emoji] || [];
-                if (userList.includes(currentUser.id)) {
-                    reactions[emoji] = userList.filter(id => id !== currentUser.id);
-                    if (reactions[emoji].length === 0) {
-                        delete reactions[emoji];
-                    }
-                } else {
-                    reactions[emoji] = [...userList, currentUser.id];
-                }
-                return { ...msg, reactions };
+      ...prev,
+      [selectedChannel.id]: prev[selectedChannel.id].map(msg => {
+        if (msg.id === messageId) {
+          const reactions = { ...(msg.reactions || {}) };
+          const userList = reactions[emoji] || [];
+          if (userList.includes(currentUser.id)) {
+            reactions[emoji] = userList.filter(id => id !== currentUser.id);
+            if (reactions[emoji].length === 0) {
+              delete reactions[emoji];
             }
-            return msg;
-        }),
+          } else {
+            reactions[emoji] = [...userList, currentUser.id];
+          }
+          return { ...msg, reactions };
+        }
+          return msg;
+      }),
     }));
   };
 
@@ -404,18 +402,18 @@ export function MainPage({ onLogout }: MainPageProps) {
   const handleReplyInThread = (replyText: string) => {
     if (!currentThread || !selectedChannel) return;
     const newReply: Message = {
-        id: Date.now(),
-        authorId: currentUser.id,
-        text: replyText,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      id: Date.now(),
+      authorId: currentUser.id,
+      text: replyText,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
 
     const updatedMessages = messages[selectedChannel.id].map(msg => {
-        if (msg.id === currentThread.id) {
-            const updatedThread = [...(msg.thread || []), newReply];
-            return { ...msg, thread: updatedThread };
-        }
-        return msg;
+      if (msg.id === currentThread.id) {
+        const updatedThread = [...(msg.thread || []), newReply];
+        return { ...msg, thread: updatedThread };
+      }
+      return msg;
     });
 
     setMessages(prev => ({ ...prev, [selectedChannel.id]: updatedMessages }));
@@ -448,100 +446,107 @@ export function MainPage({ onLogout }: MainPageProps) {
     const author = users[msg.authorId];
     const showAuthor = !prevMsg || prevMsg.authorId !== msg.authorId || isSearchResult;
     let channelName = "";
+    
     if (isSearchResult) {
-        selectedServer.categories.forEach(cat => {
-            const foundChannel = cat.channels.find(chan => chan.id === msg.channelId);
-            if (foundChannel) channelName = foundChannel.name;
-        });
+      selectedServer.categories.forEach(cat => {
+        const foundChannel = cat.channels.find(chan => chan.id === msg.channelId);
+        if (foundChannel) channelName = foundChannel.name;
+      });
     }
 
     const threadReplyCount = msg.thread?.length || 0;
 
     return (
-      <DropdownMenu key={msg.id}>
+      <DropdownMenu 
+        key={msg.id}
+        open={contextMenu?.type === 'message' && contextMenu.id === msg.id}
+        onOpenChange={(isOpen) => !isOpen && setContextMenu(null)}
+      >
         <DropdownMenuTrigger asChild>
-          <div className={`group relative flex items-start space-x-3 hover:bg-gray-800/50 p-2 rounded-md ${showAuthor ? 'mt-4' : ''}`}>
+          <div 
+            onContextMenu={(e) => { e.preventDefault(); setContextMenu({ type: 'message', id: msg.id }); }}
+            className={`group relative flex items-start space-x-3 hover:bg-gray-800/50 p-2 rounded-md ${showAuthor ? 'mt-2' : ''}`}>
             {showAuthor ? (
               <div className="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center font-bold flex-shrink-0 cursor-pointer" onClick={(e) => {e.stopPropagation(); setViewingUser(author)}}>{author?.avatar}</div>
-              ) : (
+            ) : (
               <div className="w-10 h-10"></div>
             )}
-              <div className="flex-1">
-                {showAuthor && (
-                  <div className="flex items-baseline space-x-2">
-                    <span className="font-bold text-white cursor-pointer" onClick={(e) => {e.stopPropagation(); setViewingUser(author)}}>{author?.name}</span>
-                    <span className="text-xs text-gray-400">{msg.timestamp}</span>
-                    {isSearchResult && channelName && <span className="text-xs text-gray-500">(in #{channelName})</span>}
-                  </div>
-                )}
+            <div className="flex-1">
+              {showAuthor && (
+                <div className="flex items-baseline space-x-2">
+                  <span className="font-bold text-white cursor-pointer" onClick={(e) => {e.stopPropagation(); setViewingUser(author)}}>{author?.name}</span>
+                  <span className="text-xs text-gray-400">{msg.timestamp}</span>
+                  {isSearchResult && channelName && <span className="text-xs text-gray-500">(in #{channelName})</span>}
+                </div>
+              )}
                   
-                {editingMessageId === msg.id ? (
-                  <div>
-                    <Input type="text" value={editedMessageText} onChange={(e) => setEditedMessageText(e.target.value)}
-                      className="bg-gray-900 border-gray-500 text-white mt-1"
-                      onKeyDown={(e) => { if (e.key === 'Enter') handleSaveEditMessage(); if (e.key === 'Escape') handleCancelEditMessage(); }} />
-                    <div className="text-xs text-gray-400 mt-1">Enter to save, Esc to cancel</div>
-                  </div>
-                  ) : (
-                    <>
-                      {msg.text && <p className="text-gray-200">{msg.text}</p>}
-                      {msg.file && (
-                        <div className="mt-2">
-                          {msg.file.type.startsWith('image/') ? (
-                            <img src={msg.file.url} alt={msg.file.name} className="max-w-xs rounded-md"/>
-                          ) : (
-                            <div className="flex items-center bg-gray-800 p-2 rounded-md border border-gray-600">
-                              <FileIcon className="h-6 w-6 mr-2"/>
-                              <span>{msg.file.name}</span>
-                            </div>
-                          )}
+              {editingMessageId === msg.id ? (
+                <div>
+                  <Input type="text" value={editedMessageText} onChange={(e) => setEditedMessageText(e.target.value)}
+                    className="bg-gray-900 border-gray-500 text-white mt-1"
+                    onKeyDown={(e) => { if (e.key === 'Enter') handleSaveEditMessage(); if (e.key === 'Escape') handleCancelEditMessage(); }} />
+                  <div className="text-xs text-gray-400 mt-1">Enter to save, Esc to cancel</div>
+                </div>
+              ) : (
+                <>
+                  {msg.text && <p className="text-gray-200">{msg.text}</p>}
+                  {msg.file && (
+                    <div className="mt-2">
+                      {msg.file.type.startsWith('image/') ? (
+                        <Image src={msg.file.url} alt={msg.file.name} width={200} height={200} className="rounded-md"/>
+                      ) : (
+                        <div className="flex items-center bg-gray-800 p-2 rounded-md border border-gray-600">
+                          <FileIcon className="h-6 w-6 mr-2"/>
+                          <span>{msg.file.name}</span>
                         </div>
                       )}
-                    </>
+                    </div>
                   )}
-                    <div className="flex items-center space-x-2 mt-2">
-                      {msg.reactions && Object.entries(msg.reactions).map(([emoji, userIds]) => (
-                          userIds.length > 0 && (
-                              <div key={emoji} onClick={(e) => {e.stopPropagation(); handleReaction(msg.id, emoji)}} 
-                                    className={`flex items-center space-x-1 bg-gray-800/70 rounded-full px-2 py-1 cursor-pointer hover:bg-gray-600
-                                      ${userIds.includes(currentUser.id) ? 'border border-blue-500' : 'border border-transparent'}`}>
-                                  <span>{emoji}</span>
-                                  <span className="text-sm font-semibold">{userIds.length}</span>
-                              </div>
-                          )
-                      ))}
-                      {threadReplyCount > 0 && (
-                          <div onClick={(e) => {e.stopPropagation(); handleOpenThread(msg)}} className="flex items-center space-x-1 text-xs text-blue-400 cursor-pointer hover:underline">
-                              <MessageSquareIcon size={14}/>
-                              <span>{threadReplyCount} {threadReplyCount > 1 ? 'replies' : 'reply'}</span>
-                          </div>
-                      )}
+                </>
+              )}
+              <div className="flex items-center space-x-2 mt-2">
+                {msg.reactions && Object.entries(msg.reactions).map(([emoji, userIds]) => (
+                  userIds.length > 0 && (
+                    <div key={emoji} onClick={(e) => {e.stopPropagation(); handleReaction(msg.id, emoji)}} 
+                      className={`flex items-center space-x-1 bg-gray-800/70 rounded-full px-2 py-1 cursor-pointer hover:bg-gray-600
+                      ${userIds.includes(currentUser.id) ? 'border border-blue-500' : 'border border-transparent'}`}>
+                      <span>{emoji}</span>
+                      <span className="text-sm font-semibold">{userIds.length}</span>
+                    </div>
+                  )
+                ))}
+                {threadReplyCount > 0 && (
+                  <div onClick={(e) => {e.stopPropagation(); handleOpenThread(msg)}} className="flex items-center space-x-1 text-xs text-blue-400 cursor-pointer hover:underline">
+                    <MessageSquareIcon size={14}/>
+                    <span>{threadReplyCount} {threadReplyCount > 1 ? 'replies' : 'reply'}</span>
                   </div>
-              </div>
-          </div>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="bg-gray-800 border-gray-700 text-white">
-                <DropdownMenuItem onClick={() => handleOpenThread(msg)}>Reply in Thread</DropdownMenuItem>
-                <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>Add Reaction</DropdownMenuSubTrigger>
-                    <DropdownMenuPortal>
-                        <DropdownMenuSubContent className="bg-gray-800 border-gray-700 text-white">
-                            <DropdownMenuItem onClick={() => handleReaction(msg.id, '👍')}>👍</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleReaction(msg.id, '❤️')}>❤️</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleReaction(msg.id, '😂')}>😂</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleReaction(msg.id, '😮')}>😮</DropdownMenuItem>
-                        </DropdownMenuSubContent>
-                    </DropdownMenuPortal>
-                </DropdownMenuSub>
-                {msg.authorId === currentUser.id && !msg.file && (
-                    <>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => handleStartEditMessage(msg)}>Edit Message</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleDeleteMessage(msg.id)} className="text-red-500">Delete Message</DropdownMenuItem>
-                    </>
                 )}
-            </DropdownMenuContent>
-        </DropdownMenu>
+              </div>
+            </div>
+          </div>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent onCloseAutoFocus={(e) => e.preventDefault()} className="bg-gray-800 border-gray-700 text-white">
+          <DropdownMenuItem onClick={() => handleOpenThread(msg)}>Reply in Thread</DropdownMenuItem>
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>Add Reaction</DropdownMenuSubTrigger>
+              <DropdownMenuPortal>
+                <DropdownMenuSubContent className="bg-gray-800 border-gray-700 text-white">
+                  <DropdownMenuItem onClick={() => handleReaction(msg.id, '👍')}>👍</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleReaction(msg.id, '❤️')}>❤️</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleReaction(msg.id, '😂')}>😂</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleReaction(msg.id, '😮')}>😮</DropdownMenuItem>
+                </DropdownMenuSubContent>
+              </DropdownMenuPortal>
+          </DropdownMenuSub>
+          {msg.authorId === currentUser.id && !msg.file && (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => handleStartEditMessage(msg)}>Edit Message</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleDeleteMessage(msg.id)} className="text-red-500">Delete Message</DropdownMenuItem>
+            </>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
     )
   }
 
@@ -552,13 +557,13 @@ export function MainPage({ onLogout }: MainPageProps) {
       <div className="flex h-full bg-gray-800 text-white">
         {/* Server List */}
         <div className="w-20 bg-gray-900 p-3 flex flex-col items-center space-y-3 flex-shrink-0">
-            {servers.map(server => (
-                <div key={server.id} onClick={() => handleServerSelect(server)} title={server.name}
-                    className={`w-14 h-14 rounded-full flex items-center justify-center cursor-pointer text-2xl font-bold transition-all duration-200
-                        ${selectedServer.id === server.id ? 'bg-blue-600 rounded-2xl' : 'bg-gray-700 hover:bg-blue-500 hover:rounded-2xl'}`}>
-                    {server.icon}
-                </div>
-            ))}
+          {servers.map(server => (
+            <div key={server.id} onClick={() => handleServerSelect(server)} title={server.name}
+              className={`w-14 h-14 rounded-full flex items-center justify-center cursor-pointer text-2xl font-bold transition-all duration-200
+              ${selectedServer.id === server.id ? 'bg-blue-600 rounded-2xl' : 'bg-gray-700 hover:bg-blue-500 hover:rounded-2xl'}`}>
+              {server.icon}
+            </div>
+          ))}
             <Dialog open={isAddServerDialogOpen} onOpenChange={setIsAddServerDialogOpen}>
               <DialogTrigger asChild>
                 <Button variant="outline" className="w-14 h-14 rounded-full bg-gray-700 hover:bg-green-500 text-white text-2xl">+
@@ -577,14 +582,19 @@ export function MainPage({ onLogout }: MainPageProps) {
 
         {/* Channel List */}
         <div className="w-72 bg-gray-800 flex flex-col flex-shrink-0">
-          <DropdownMenu>
+          <DropdownMenu
+            open={contextMenu?.type === 'server' && contextMenu.id === selectedServer.id}
+            onOpenChange={(isOpen) => !isOpen && setContextMenu(null)}
+          >
             <DropdownMenuTrigger asChild>
-              <div className="p-3 font-bold border-b border-gray-900 shadow-md flex justify-between items-center cursor-pointer hover:bg-gray-700">
+              <div 
+                onContextMenu={(e) => { e.preventDefault(); setContextMenu({ type: 'server', id: selectedServer.id }); }}
+                className="p-3 font-bold border-b border-gray-900 shadow-md flex justify-between items-center cursor-pointer hover:bg-gray-700">
                 <h3>{selectedServer.name}</h3>
                 <Settings className="h-5 w-5 text-gray-400"/>
               </div>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56 bg-gray-800 border-gray-700 text-white">
+            <DropdownMenuContent onCloseAutoFocus={(e) => e.preventDefault()} className="w-56 bg-gray-800 border-gray-700 text-white">
               <DropdownMenuItem onClick={() => openEditServerDialog(selectedServer)}>서버 이름 수정</DropdownMenuItem>
               <DropdownMenuItem onClick={openAddCategoryDialog}>카테고리 만들기</DropdownMenuItem>
             </DropdownMenuContent>
@@ -592,56 +602,72 @@ export function MainPage({ onLogout }: MainPageProps) {
           
           <ul className="flex-1 overflow-y-auto mt-2 space-y-1 p-2">
             {selectedServer.categories.map(category => (
-                <li key={category.id}>
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <div className="flex justify-between items-center text-sm font-bold text-gray-400 uppercase px-2 py-1 cursor-pointer hover:text-gray-200">
-                            <div className="flex items-center" onClick={(e) => {e.stopPropagation(); toggleCategory(category.id)}}>
-                                {openCategories[category.id] ? <ChevronDown size={16}/> : <ChevronRight size={16}/>}
-                                <span className="ml-1">{category.name}</span>
-                            </div>
-                        </div>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-56 bg-gray-800 border-gray-700 text-white">
+              <li key={category.id}>
+                <DropdownMenu
+                  open={contextMenu?.type === 'category' && contextMenu.id === category.id}
+                  onOpenChange={(isOpen) => !isOpen && setContextMenu(null)}
+                >
+                  <DropdownMenuTrigger asChild>
+                    <div 
+                      onContextMenu={(e) => { e.preventDefault(); setContextMenu({ type: 'category', id: category.id }); }}
+                      className="flex justify-between items-center text-sm font-bold text-gray-400 uppercase px-2 py-1 cursor-pointer hover:text-gray-200">
+                      <div className="flex items-center" onClick={(e) => {e.stopPropagation(); toggleCategory(category.id)}}>
+                        {openCategories[category.id] ? <ChevronDown size={16}/> : <ChevronRight size={16}/>}
+                        <span className="ml-1">{category.name}</span>
+                      </div>
+                    </div>
+                  </DropdownMenuTrigger>
+                    <DropdownMenuContent onCloseAutoFocus={(e) => e.preventDefault()} className="w-56 bg-gray-800 border-gray-700 text-white">
                       <DropdownMenuItem onClick={() => openAddChannelDialog(category.id)}>채널 만들기</DropdownMenuItem>
                       <DropdownMenuItem onClick={() => openEditCategoryDialog(category)}>카테고리 수정</DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleDeleteCategory(category.id)} className="text-red-500">카테고리 삭제</DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
                 {openCategories[category.id] && category.channels.map(channel => (
-                    <DropdownMenu key={channel.id}>
-                        <DropdownMenuTrigger asChild>
-                            <div className={`group flex items-center justify-between p-2 cursor-pointer rounded-md ${unreadChannels[channel.id] ? 'text-white font-semibold' : 'text-gray-400'} hover:bg-gray-700 hover:text-white ${selectedChannel?.id === channel.id ? 'bg-gray-700 text-white' : ''}`}>
-                                <div className="flex items-center flex-1 truncate" onClick={() => handleChannelSelect(channel)}>
-                                    {notificationSettings[channel.id] === 'none' ? <BellOff className="h-4 w-4 mr-2 text-gray-500"/> : <Hash className="h-5 w-5 mr-2"/>}
-                                    <span className="truncate">{channel.name}</span>
-                                </div>
-                                {unreadChannels[channel.id] && <div className="w-2 h-2 bg-white rounded-full mr-2"></div>}
-                            </div>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="w-56 bg-gray-800 border-gray-700 text-white">
-                            <DropdownMenuItem onClick={() => openEditChannelDialog(channel)}>채널 수정</DropdownMenuItem>
-                            <DropdownMenuSub>
-                                <DropdownMenuSubTrigger>알림 설정</DropdownMenuSubTrigger>
-                                <DropdownMenuPortal>
-                                    <DropdownMenuSubContent className="bg-gray-800 border-gray-700 text-white">
-                                        <DropdownMenuItem onClick={() => handleNotificationChange(channel.id, 'all')}>All Messages</DropdownMenuItem>
-                                        <DropdownMenuItem onClick={() => handleNotificationChange(channel.id, 'mentions')}>@mentions Only</DropdownMenuItem>
-                                        <DropdownMenuItem onClick={() => handleNotificationChange(channel.id, 'none')}>Nothing</DropdownMenuItem>
-                                    </DropdownMenuSubContent>
-                                </DropdownMenuPortal>
-                            </DropdownMenuSub>
-                            <DropdownMenuSeparator/>
-                            <DropdownMenuItem onClick={() => handleDeleteChannel(channel.id)} className="text-red-500">채널 삭제</DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                  <DropdownMenu 
+                    key={channel.id}
+                    open={contextMenu?.type === 'channel' && contextMenu.id === channel.id}
+                    onOpenChange={(isOpen) => !isOpen && setContextMenu(null)}
+                  >
+                    <DropdownMenuTrigger asChild>
+                      <div 
+                        onContextMenu={(e) => { e.preventDefault(); setContextMenu({ type: 'channel', id: channel.id }); }}
+                        className={`group flex items-center justify-between p-2 cursor-pointer rounded-md ${unreadChannels[channel.id] ? 'text-white font-semibold' : 'text-gray-400'} hover:bg-gray-700 hover:text-white ${selectedChannel?.id === channel.id ? 'bg-gray-700 text-white' : ''}`}>
+                        <div className="flex items-center flex-1 truncate" onClick={() => handleChannelSelect(channel)}>
+                          {notificationSettings[channel.id] === 'none' ? <BellOff className="h-4 w-4 mr-2 text-gray-500"/> : <Hash className="h-5 w-5 mr-2"/>}
+                          <span className="truncate">{channel.name}</span>
+                        </div>
+                        {unreadChannels[channel.id] && <div className="w-2 h-2 bg-white rounded-full mr-2"></div>}
+                      </div>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent onCloseAutoFocus={(e) => e.preventDefault()} className="w-56 bg-gray-800 border-gray-700 text-white">
+                      <DropdownMenuItem onClick={() => openEditChannelDialog(channel)}>채널 수정</DropdownMenuItem>
+                        <DropdownMenuSub>
+                          <DropdownMenuSubTrigger>알림 설정</DropdownMenuSubTrigger>
+                            <DropdownMenuPortal>
+                              <DropdownMenuSubContent className="bg-gray-800 border-gray-700 text-white">
+                                <DropdownMenuItem onClick={() => handleNotificationChange(channel.id, 'all')}>All Messages</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleNotificationChange(channel.id, 'mentions')}>@mentions Only</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleNotificationChange(channel.id, 'none')}>Nothing</DropdownMenuItem>
+                              </DropdownMenuSubContent>
+                            </DropdownMenuPortal>
+                          </DropdownMenuSub>
+                        <DropdownMenuSeparator/>
+                      <DropdownMenuItem onClick={() => handleDeleteChannel(channel.id)} className="text-red-500">채널 삭제</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 ))}
               </li>
             ))}
           </ul>
-          <DropdownMenu>
+          <DropdownMenu
+            open={contextMenu?.type === 'userProfile' && contextMenu.id === 'userProfile'}
+            onOpenChange={(isOpen) => !isOpen && setContextMenu(null)}
+          >
             <DropdownMenuTrigger asChild>
-              <div className="p-3 border-t border-gray-900 flex items-center space-x-3 bg-gray-850 cursor-pointer hover:bg-gray-800">
+              <div 
+                onContextMenu={(e) => { e.preventDefault(); setContextMenu({ type: 'userProfile', id: 'userProfile' }); }}
+                className="p-3 border-t border-gray-900 flex items-center space-x-3 bg-gray-850 cursor-pointer hover:bg-gray-800">
                 <div className="relative">
                   <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center font-bold">{currentUser.avatar}</div>
                   <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-gray-850"></div>
@@ -649,7 +675,7 @@ export function MainPage({ onLogout }: MainPageProps) {
                 <span className="font-bold">{currentUser.name}</span>
               </div>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56 bg-gray-800 border-gray-700 text-white">
+            <DropdownMenuContent onCloseAutoFocus={(e) => e.preventDefault()} className="w-56 bg-gray-800 border-gray-700 text-white">
               <DropdownMenuItem onClick={() => alert('Set status clicked')}>Set Status</DropdownMenuItem>
               <DropdownMenuItem onClick={() => setViewingUser(currentUser)}>Profile</DropdownMenuItem>
               <DropdownMenuSeparator />
@@ -660,57 +686,58 @@ export function MainPage({ onLogout }: MainPageProps) {
 
         {/* Main Content Pane */}
         <div className="flex-1 flex bg-gray-700 relative">
-            {/* Chat Area */}
-            <div className={`flex-1 flex flex-col transition-all duration-300 ease-in-out ${currentThread ? 'w-1/2' : 'w-full'}`}>
-                <div className="p-3 border-b border-gray-900 shadow-md flex items-center justify-between">
-                    <div className="flex items-center">
-                        <Hash className="h-6 w-6 text-gray-400 mr-2"/>
-                        <h2 className="text-xl font-bold text-white">{selectedChannel?.name}</h2>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                        <Input 
-                            type="text" 
-                            placeholder="Search..." 
-                            className="bg-gray-900 border-gray-600 text-white w-48 h-8"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                        />
-                    </div>
+          {/* Chat Area */}
+          <div className={`flex-1 flex flex-col transition-all duration-300 ease-in-out ${currentThread ? 'w-1/2' : 'w-full'}`}>
+            <div className="p-3 border-b border-gray-900 shadow-md flex items-center justify-between">
+              <div className="flex items-center">
+                <Hash className="h-6 w-6 text-gray-400 mr-2"/>
+                <h2 className="text-xl font-bold text-white">{selectedChannel?.name}</h2>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Input 
+                  type="text" 
+                  placeholder="Search..." 
+                  className="bg-gray-900 border-gray-600 text-white w-48 h-8"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                />
+              </div>
+            </div>
+            <div className="flex-1 p-4 overflow-y-auto space-y-1">
+              {isSearching ? (
+                searchResults.length > 0 ? (
+                  searchResults.map((msg, index, arr) => renderMessage(msg, index > 0 ? arr[index - 1] : null, true))
+                ) : (
+                  <div className="text-center text-gray-400">No results found for &quot;{searchQuery}&quot;</div>
+                )
+              ) : (
+                (selectedChannel && messages[selectedChannel?.id] || []).map((msg: Message, index: number, arr: Message[]) => renderMessage(msg, index > 0 ? arr[index - 1] : null))
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+              <div className="p-4">
+                <div className="bg-gray-600 p-2 rounded-lg flex items-center">
+                  <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" />
+                  <Plus className="h-6 w-6 text-gray-400 mx-2 cursor-pointer hover:text-white" onClick={() => fileInputRef.current?.click()}/>
+                  <input type="text" placeholder={`Message #${selectedChannel?.name}`} className="flex-1 bg-transparent focus:outline-none text-white"
+                  value={currentMessage} onChange={(e) => setCurrentMessage(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()} />
                 </div>
-                <div className="flex-1 p-4 overflow-y-auto space-y-1">
-                    {isSearching ? (
-                        searchResults.length > 0 ? (
-                            searchResults.map((msg, index, arr) => renderMessage(msg, index > 0 ? arr[index - 1] : null, true))
-                        ) : (
-                            <div className="text-center text-gray-400">No results found for "{searchQuery}"</div>
-                        )
-                    ) : (
-                        (messages[selectedChannel?.id] || []).map((msg, index, arr) => renderMessage(msg, index > 0 ? arr[index - 1] : null))
-                    )}
-                    <div ref={messagesEndRef} />
-                </div>
-                <div className="p-4">
-                    <div className="bg-gray-600 p-2 rounded-lg flex items-center">
-                        <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" />
-                        <Plus className="h-6 w-6 text-gray-400 mx-2 cursor-pointer hover:text-white" onClick={() => fileInputRef.current?.click()}/>
-                        <input type="text" placeholder={`Message #${selectedChannel?.name}`} className="flex-1 bg-transparent focus:outline-none text-white"
-                        value={currentMessage} onChange={(e) => setCurrentMessage(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()} />
-                    </div>
-                </div>
+              </div>
             </div>
             {currentThread && (
-                <div className="w-1/2 border-l border-gray-600">
-                    <ThreadView 
-                        originalMessage={currentThread}
-                        users={users}
-                        onClose={handleCloseThread}
-                        onReply={handleReplyInThread}
-                        renderMessage={renderMessage}
-                    />
-                </div>
+              <div className="w-1/2 border-l border-gray-600">
+                <ThreadView 
+                  originalMessage={currentThread}
+                  users={users}
+                  onClose={handleCloseThread}
+                  onReply={handleReplyInThread}
+                  renderMessage={renderMessage}
+                />
+              </div>
             )}
-        </div>      </div>
+        </div>
+      </div>
 
       {/* Dialogs */}
       <Dialog open={isAddCategoryDialogOpen} onOpenChange={setIsAddCategoryDialogOpen}>
