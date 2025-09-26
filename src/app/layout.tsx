@@ -1,6 +1,6 @@
-import type { Metadata } from "next";
-import { Roboto } from "next/font/google";
-import "./globals.css";
+import type { Metadata } from 'next';
+import { Roboto } from 'next/font/google';
+import './globals.css';
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -9,16 +9,16 @@ const roboto = Roboto({
 });
 
 export const metadata: Metadata = {
-  title: "Synob App",
-  description: "A simple clock, weather, and lock screen application.",
+  title: 'Synob App',
+  description: 'A simple clock, weather, and lock screen application.',
   // PWA Meta Tags
   manifest: "/manifest.json", // Assuming a manifest file will be added later
-  themeColor: "#000000",
-  viewport: "width=device-width, initial-scale=1, viewport-fit=cover",
+  themeColor: '#000000',
+  viewport: 'width=device-width, initial-scale=1, viewport-fit=cover',
   appleWebApp: {
     capable: true,
-    statusBarStyle: "black-translucent",
-    title: "Synob App",
+    statusBarStyle: 'black-translucent',
+    title: 'Synob App',
   },
   // Favicon
   icons: {
@@ -26,15 +26,19 @@ export const metadata: Metadata = {
   },
 };
 
+import { AppProvider } from '@/contexts/AppContext';
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang='en' className='dark'>
       <body className={`${roboto.variable} font-sans antialiased`}>
-        {children}
+        <AppProvider>
+          {children}
+        </AppProvider>
       </body>
     </html>
   );

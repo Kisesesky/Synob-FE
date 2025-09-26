@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Minus, Square, X, Maximize2, Minimize2 } from 'lucide-react';
+import { Minus, X, Maximize2, Minimize2 } from 'lucide-react';
 
 interface WindowFrameProps {
   children: React.ReactNode;
@@ -13,7 +13,7 @@ interface WindowFrameProps {
   onMaximize?: () => void;
 }
 
-export function WindowFrame({ children, title = "Application", onClose, onMinimize, onMaximize }: WindowFrameProps) {
+export function WindowFrame({ children, title = 'Application', onClose, onMinimize, onMaximize }: WindowFrameProps) {
   const [isMaximized, setIsMaximized] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -25,7 +25,7 @@ export function WindowFrame({ children, title = "Application", onClose, onMinimi
   const [offset, setOffset] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
-    if (typeof window !== "undefined" && !isMobile) {
+    if (typeof window !== 'undefined' && !isMobile) {
       const initialWidth = window.innerWidth * 0.88;
       const initialHeight = window.innerHeight * 0.88;
       const initialX = (window.innerWidth - initialWidth) / 2;
@@ -69,8 +69,10 @@ export function WindowFrame({ children, title = "Application", onClose, onMinimi
     }
   };
 
-  const handleMouseMove = (e: MouseEvent) => {
-    if (!isDragging || !windowRef.current || isMaximized || isMinimized || isMobile) return;
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    if (!isDragging || !windowRef.current || isMaximized || isMinimized || isMobile) {
+      return;
+    }
 
     let newX = e.clientX - offset.x;
     let newY = e.clientY - offset.y;
@@ -82,7 +84,7 @@ export function WindowFrame({ children, title = "Application", onClose, onMinimi
     newY = Math.max(0, Math.min(newY, window.innerHeight - windowHeight));
 
     setPosition({ x: newX, y: newY });
-  };
+  }, [isDragging, isMaximized, isMinimized, isMobile, offset]);
 
   const handleMouseUp = () => {
     setIsDragging(false);
@@ -92,18 +94,18 @@ export function WindowFrame({ children, title = "Application", onClose, onMinimi
     if (isDragging) {
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
-      document.body.style.cursor = "grabbing";
+      document.body.style.cursor = 'grabbing';
     } else {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
-      document.body.style.cursor = "";
+      document.body.style.cursor = '';
     };
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
-      document.body.style.cursor = "";
+      document.body.style.cursor = '';
     };
-  }, [isDragging]);
+  }, [isDragging, handleMouseMove]);
 
   return (
     <Card 
@@ -122,17 +124,17 @@ export function WindowFrame({ children, title = "Application", onClose, onMinimi
         `}
         onMouseDown={isMobile ? undefined : handleMouseDown}
       >
-        <span className="text-sm font-medium">{title}</span>
+        <span className='text-sm font-medium'>{title}</span>
         {!isMobile && (
-          <div className="flex space-x-1">
-            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleMinimize} title={isMinimized ? "Restore" : "Minimize"}>
-              {isMinimized ? <Minimize2 className="h-4 w-4" /> : <Minus className="h-4 w-4" />}
+          <div className='flex space-x-1'>
+            <Button variant='ghost' size='icon' className='h-6 w-6' onClick={handleMinimize} title={isMinimized ? 'Restore' : 'Minimize'}>
+              {isMinimized ? <Minimize2 className='h-4 w-4' /> : <Minus className='h-4 w-4' />}
             </Button>
-            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleMaximize} title={isMaximized ? "Restore" : "Maximize"}>
-              {isMaximized ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+            <Button variant='ghost' size='icon' className='h-6 w-6' onClick={handleMaximize} title={isMaximized ? 'Restore' : 'Maximize'}>
+              {isMaximized ? <Minimize2 className='h-4 w-4' /> : <Maximize2 className='h-4 w-4' />}
             </Button>
-            <Button variant="ghost" size="icon" className="h-6 w-6 text-red-500 hover:bg-red-500/20" onClick={handleClose} title="Close">
-              <X className="h-4 w-4" />
+            <Button variant='ghost' size='icon' className='h-6 w-6 text-red-500 hover:bg-red-500/20' onClick={handleClose} title='Close'>
+              <X className='h-4 w-4' />
             </Button>
           </div>
         )}
@@ -140,10 +142,10 @@ export function WindowFrame({ children, title = "Application", onClose, onMinimi
 
       {/* Menu Bar (Placeholder) */}
       <div className={`flex items-center bg-background border-b border-border text-sm text-muted-foreground flex-shrink-0 ${isMinimized || isMobile ? 'hidden' : ''}`}>
-        <Button variant="ghost" size="sm">File</Button>
-        <Button variant="ghost" size="sm">Edit</Button>
-        <Button variant="ghost" size="sm">View</Button>
-        <Button variant="ghost" size="sm">Settings</Button>
+        <Button variant='ghost' size='sm'>File</Button>
+        <Button variant='ghost' size='sm'>Edit</Button>
+        <Button variant='ghost' size='sm'>View</Button>
+        <Button variant='ghost' size='sm'>Settings</Button>
       </div>
 
       {/* Content Area */}
