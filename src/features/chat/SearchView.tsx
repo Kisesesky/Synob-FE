@@ -206,7 +206,7 @@ export const SearchView = () => {
             }
           })
         ) : (
-          <div className='text-center text-gray-400'>No results found for "{searchQuery}"</div>
+          <div className='text-center text-gray-400'>No results found for &quot;{searchQuery}&quot;</div>
         )}
         {hasMoreSearchResults && (
           <div className='flex justify-center mt-4'>
