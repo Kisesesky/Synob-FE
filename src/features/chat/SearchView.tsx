@@ -101,7 +101,7 @@ export const SearchView = () => {
             id='sender-select'
             className='w-full bg-gray-800 border border-gray-600 text-white rounded-md px-3 py-1 mt-1 focus:outline-none'
             value={searchSenderId || ''}
-            onChange={(e) => setSearchSenderId(e.target.value ? Number(e.target.value) : null)}
+            onChange={(e) => setSearchSenderId(e.target.value ? Number(e.target.value) as import('@/lib/brandedTypes').UserId : null)}
           >
             <option value=''>Any sender</option>
             {Object.values(users).map(user => (
@@ -137,7 +137,7 @@ export const SearchView = () => {
             id='channel-select'
             className='w-full bg-gray-800 border border-gray-600 text-white rounded-md px-3 py-1 mt-1 focus:outline-none'
             value={searchChannelId || ''}
-            onChange={(e) => setSearchChannelId(e.target.value ? Number(e.target.value) : null)}
+            onChange={(e) => setSearchChannelId(e.target.value ? Number(e.target.value) as import('@/lib/brandedTypes').ChannelId : null)}
           >
             <option value=''>Any channel</option>
             {selectedServer?.categories.map(category => (

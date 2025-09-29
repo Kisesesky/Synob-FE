@@ -3,7 +3,7 @@
 import React from 'react';
 import { useAppContext } from '@/contexts/AppContext';
 
-export const FriendsList = () => {
+export const FriendsList = React.memo(() => {
   const { users, handleDmChannelSelect } = useAppContext();
 
   // Convert users object to an array, excluding the current user
@@ -34,4 +34,6 @@ export const FriendsList = () => {
       </div>
     </div>
   );
-};
+});
+
+FriendsList.displayName = 'FriendsList';

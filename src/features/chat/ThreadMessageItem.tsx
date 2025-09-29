@@ -33,7 +33,7 @@ export const ThreadMessageItem = React.memo(({
     : null;
   const repliedToAuthor = repliedToMessage ? users[repliedToMessage.authorId] : null;
 
-  const handleScrollToMessage = (messageId: number) => {
+  const handleScrollToMessage = (messageId: import('@/lib/brandedTypes').MessageId) => {
     const element = document.getElementById(`thread-message-${messageId}`);
     element?.scrollIntoView({ behavior: 'smooth' });
   };

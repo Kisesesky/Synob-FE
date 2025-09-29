@@ -117,8 +117,6 @@ export const ChannelList = ({ onLogout }: { onLogout: () => void }) => {
                   </DropdownMenuContent>
               </DropdownMenu>
               {openCategories[category.id] && category.channels.map(channel => {
-                console.log('Debugging channel in map:', channel);
-                console.log('Debugging channel.id in map:', channel?.id);
                 return (
                 <DropdownMenu 
                   key={channel.id}
