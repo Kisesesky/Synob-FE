@@ -1,35 +1,37 @@
+import type { ServerId, ChannelId, CategoryId, UserId, MessageId } from './brandedTypes';
+
 export interface Channel {
-  id: number;
+  id: ChannelId;
   name: string;
 }
 
 export interface Category {
-  id: number;
+  id: CategoryId;
   name: string;
   channels: Channel[];
 }
 
 export interface Server {
-  id: number;
+  id: ServerId;
   name: string;
   icon: string;
   categories: Category[];
 }
 
 export interface User {
-  id: number;
+  id: UserId;
   name: string;
   avatar: string;
 }
 
 export interface Message {
-  id: number;
+  id: MessageId;
   text?: string;
-  authorId: number;
+  authorId: UserId;
   timestamp: string;
   file?: { name: string; type: string; url: string; };
-  reactions?: { [emoji: string]: number[] };
+  reactions?: { [emoji: string]: UserId[] };
   thread?: Message[];
-  channelId?: number;
-  repliedToMessageId?: number;
+  channelId?: ChannelId;
+  repliedToMessageId?: MessageId;
 }
