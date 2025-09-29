@@ -1,11 +1,10 @@
-'use client';
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Hash, Plus, X, Search } from 'lucide-react'; // Import X and Search for cancel and search button
 import { useAppContext } from '@/contexts/AppContext';
 import { MessageItem } from './MessageItem';
-import { Message } from '@/lib/types'; // Import Message type
-import { groupMessagesByDate } from '../../lib/utils'; // Import groupMessagesByDate
+import { Message } from '@/lib/types';
+import { groupMessagesByDate } from '../../lib/utils';
+import { EmojiPicker } from '@/components/EmojiPicker';
 
 interface DateHeader {
   type: 'dateHeader';
@@ -39,14 +38,23 @@ export const ChatArea = () => {
     ...messageItemProps
   } = useAppContext();
 
+  const handleEmojiSelect = (emoji: string) => {
+    setCurrentMessage(currentMessage + emoji);
+  };
+
+  console.log('ChatArea - currentMessage:', currentMessage); // Debug log
+
   const repliedToAuthor = replyingToMessage ? users[replyingToMessage.authorId] : null;
 
   const activeChannel = viewMode === 'friends' ? selectedDmChannel : selectedChannel;
+  console.log('ChatArea - activeChannel:', activeChannel); // Debug log
 
   // Define currentChannelMessages here
   const currentChannelMessages: Message[] = activeChannel ? messages[activeChannel.id] || [] : [];
+  console.log('ChatArea - currentChannelMessages:', currentChannelMessages); // Debug log
 
   const groupedMessages = groupMessagesByDate(currentChannelMessages);
+  console.log('ChatArea - groupedMessages:', groupedMessages); // Debug log
 
   if (viewMode === 'friends' && !selectedDmChannel) {
     return (
@@ -127,7 +135,14 @@ export const ChatArea = () => {
           <input type='text'
             placeholder={replyingToMessage ? `Replying to ${repliedToAuthor?.name}...` : `Message #${activeChannel?.name}`}
             className='flex-1 bg-transparent focus:outline-none text-white'
-            value={currentMessage} onChange={(e) => setCurrentMessage(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()} />
+            value={currentMessage} onChange={(e) => setCurrentMessage(e.target.value)} onKeyDown={(e) => {
+              console.log('ChatArea - KeyDown event, key:', e.key); // Debug log
+              if (e.key === 'Enter') {
+                console.log('ChatArea - Enter pressed, calling handleSendMessage'); // Debug log
+                handleSendMessage();
+              }
+            }} />
+          <EmojiPicker onSelect={handleEmojiSelect} />
         </div>
       </div>
     </div>

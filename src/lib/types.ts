@@ -15,6 +15,7 @@ export interface Server {
   id: ServerId;
   name: string;
   icon: string;
+  imageUrl?: string; // Optional image URL for the server icon
   categories: Category[];
 }
 

@@ -26,10 +26,10 @@ export function WindowFrame({ children, title = 'Application', onClose, onMinimi
 
   useEffect(() => {
     if (typeof window !== 'undefined' && !isMobile) {
-      const initialWidth = window.innerWidth * 0.88;
-      const initialHeight = window.innerHeight * 0.88;
+      const initialWidth = window.innerWidth * 0.8;
+      const initialHeight = (window.innerHeight - 90) * 0.8 * 1.20;
       const initialX = (window.innerWidth - initialWidth) / 2;
-      const initialY = (window.innerHeight - initialHeight) / 2;
+      const initialY = (window.innerHeight - initialHeight - 76) / 2; // Adjust initialY to account for dock and keep centered
 
       setPosition({ x: initialX, y: initialY });
       setSize({ width: initialWidth, height: initialHeight });
@@ -111,10 +111,9 @@ export function WindowFrame({ children, title = 'Application', onClose, onMinimi
     <Card 
       ref={windowRef}
       className={`fixed bg-background border border-border shadow-lg flex flex-col overflow-hidden transition-all duration-300 ease-in-out
-        ${ isMobile || isMaximized ? 'w-screen h-screen rounded-none top-0 left-0' : 'rounded-lg' }
+        ${ isMobile || isMaximized ? 'w-screen h-[calc(100vh-76px)] rounded-none top-0 left-0' : 'rounded-lg' }
         ${ isMinimized ? 'bottom-0 left-0 h-12 w-64 cursor-pointer' : '' }
-      `}
-      style={isMaximized || isMinimized || isMobile ? {} : { top: `${position.y}px`, left: `${position.x}px`, width: `${size.width}px`, height: `${size.height}px` }}
+      `}      style={isMaximized || isMinimized || isMobile ? {} : { top: `${position.y}px`, left: `${position.x}px`, width: `${size.width}px`, height: `${size.height}px` }}
       onDoubleClick={isMinimized ? handleMinimize : undefined}
     >
       {/* Title Bar */}
@@ -149,7 +148,7 @@ export function WindowFrame({ children, title = 'Application', onClose, onMinimi
       </div>
 
       {/* Content Area */}
-      <div className={`flex-1 overflow-auto ${isMinimized ? 'hidden' : ''}`}>
+      <div className={`flex flex-col flex-1 overflow-hidden ${isMinimized ? 'hidden' : ''}`}>
         {children}
       </div>
     </Card>

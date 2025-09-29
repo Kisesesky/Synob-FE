@@ -18,15 +18,16 @@ export const useSearchManagement = (
     const [excludeMyMessages, setExcludeMyMessages] = useState<boolean>(false);
     const [onlyMyMessages, setOnlyMyMessages] = useState<boolean>(false);
     const [searchOffset, setSearchOffset] = useState<number>(0);
-    const [searchLimit] = useState<number>(20);
+    const searchLimit = 20;
     const [hasMoreSearchResults, setHasMoreSearchResults] = useState<boolean>(false);
     const [searchResults, setSearchResults] = useState<Message[]>([]);
+    const [hasSearched, setHasSearched] = useState<boolean>(false);
 
     const handleSearch = useCallback((append: boolean = false) => {
         if (searchQuery.trim() === '' && !searchSenderId && !searchStartDate && !searchEndDate && !searchChannelId && !excludeMyMessages && !onlyMyMessages) {
-          setIsSearching(false);
           setSearchResults([]);
           setHasMoreSearchResults(false);
+          setHasSearched(false);
           return;
         }
         setIsSearching(true);
@@ -67,8 +68,9 @@ export const useSearchManagement = (
         setHasMoreSearchResults(newOffset < allFilteredResults.length);
         if (!append) {
           setSearchOffset(searchLimit);
+          setHasSearched(true);
         }
-      }, [searchQuery, searchSenderId, searchStartDate, searchEndDate, searchChannelId, excludeMyMessages, onlyMyMessages, selectedServer, messages, currentUser.id, searchLimit, searchOffset, setIsSearching]);
+      }, [searchQuery, searchSenderId, searchStartDate, searchEndDate, searchChannelId, excludeMyMessages, onlyMyMessages, selectedServer, messages, currentUser.id, searchOffset, setIsSearching]);
     
       const loadMoreSearchResults = useCallback(() => {
         handleSearch(true);
@@ -85,6 +87,7 @@ export const useSearchManagement = (
         searchLimit,
         hasMoreSearchResults, setHasMoreSearchResults,
         searchResults,
+        hasSearched, setHasSearched,
         handleSearch,
         loadMoreSearchResults,
     };

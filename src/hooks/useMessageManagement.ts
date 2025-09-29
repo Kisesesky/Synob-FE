@@ -36,17 +36,24 @@ export const useMessageManagement = (
     }, [dmChannels, currentUser.id, users]);
 
     const handleSendMessage = useCallback(() => {
+        console.log('handleSendMessage called'); // Debug log
         if (currentMessage.trim() === '' || !selectedChannel) {
+          console.log('handleSendMessage - Message empty or no channel selected'); // Debug log
           return;
         }
         const newMessage: Message = {
           id: Date.now() as MessageId,
           authorId: currentUser.id,
           text: currentMessage,
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          timestamp: new Date().toISOString(),
           ...(replyingToMessage && { repliedToMessageId: replyingToMessage.id }),
         };
-        setMessages(prev => ({ ...prev, [selectedChannel.id]: [...(prev[selectedChannel.id] || []), newMessage] }));
+        console.log('handleSendMessage - newMessage:', newMessage); // Debug log
+        setMessages(prev => {
+          const updatedMessages = { ...prev, [selectedChannel.id]: [...(prev[selectedChannel.id] || []), newMessage] };
+          console.log('handleSendMessage - updatedMessages state:', updatedMessages); // Debug log
+          return updatedMessages;
+        });
         setCurrentMessage('');
         setReplyingToMessage(null);
       }, [currentMessage, selectedChannel, currentUser.id, replyingToMessage, setMessages]);
@@ -62,7 +69,7 @@ export const useMessageManagement = (
           const newFileMessage: Message = {
             id: Date.now() as MessageId,
             authorId: currentUser.id,
-            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            timestamp: new Date().toISOString(),
             file: {
               name: file.name,
               type: file.type,
@@ -78,7 +85,7 @@ export const useMessageManagement = (
             const newFileMessage: Message = {
               id: Date.now() as MessageId,
               authorId: currentUser.id,
-              timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+              timestamp: new Date().toISOString(),
               file: { name: file.name, type: file.type, url: '' } 
             };
           setMessages(prev => ({ ...prev, [selectedChannel.id]: [...(prev[selectedChannel.id] || []), newFileMessage] }));
@@ -192,8 +199,7 @@ export const useMessageManagement = (
         const newReply: Message = {
           id: Date.now() as MessageId,
           authorId: currentUser.id,
-          text: replyText,
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          timestamp: new Date().toISOString(),
           ...(replyingToMessage && { repliedToMessageId: replyingToMessage.id }),
         };
     
@@ -228,7 +234,7 @@ export const useMessageManagement = (
           const newFileMessage: Message = {
             id: Date.now() as MessageId,
             authorId: currentUser.id,
-            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            timestamp: new Date().toISOString(),
             file: { name: file.name, type: file.type, url: fileUrl },
           };
     

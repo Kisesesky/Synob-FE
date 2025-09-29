@@ -9,13 +9,13 @@ export default function LoginPage() {
 
   const handleLogin = () => {
     localStorage.setItem('isLoggedIn', 'true');
-    router.push('/dashboard');
+    router.push('/desktop');
   };
 
   // Check if already logged in on client side
   useEffect(() => {
     if (localStorage.getItem('isLoggedIn') === 'true') {
-      router.push('/dashboard');
+      router.push('/desktop');
     }
   }, [router]);
 

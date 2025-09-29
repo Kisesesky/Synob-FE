@@ -51,7 +51,7 @@ export const ThreadView = () => {
       </div>
       
       <div className='flex-1 overflow-y-auto p-4 space-y-0'>
-        <ThreadMessageItem msg={currentThread} author={users[currentThread.authorId]} showAuthor={true} />
+        <ThreadMessageItem msg={currentThread} author={users[currentThread.authorId]} prevMsg={null} />
         <div className='relative flex justify-center items-center my-4'>
           <span className='flex-shrink text-sm text-gray-400'>
             {(currentThread.thread || []).length} replies
@@ -64,7 +64,7 @@ export const ThreadView = () => {
             key={replyMsg.id} 
             msg={replyMsg} 
             author={users[replyMsg.authorId]}
-            showAuthor={!arr[index-1] || arr[index-1].authorId !== replyMsg.authorId} 
+            prevMsg={index === 0 ? currentThread : arr[index - 1]}
           />
         ))}
       </div>
