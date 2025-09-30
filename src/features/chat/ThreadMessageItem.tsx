@@ -6,6 +6,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { File as FileIcon, Reply as ReplyIcon, MessageSquare as MessageSquareIcon, Smile } from 'lucide-react';
 import type { Message, User } from '@/lib/types';
+import type { MessageId } from '@/lib/brandedTypes';
 import { useAppContext } from '@/contexts/AppContext';
 import { formatTimestamp, parseMarkdownToHtml, replaceEmojiShortcuts } from '../../lib/utils'; // Import formatTimestamp and parseMarkdownToHtml
 import { EMOJI_CATEGORIES } from '../../lib/emojis';
@@ -15,7 +16,25 @@ export const ThreadMessageItem = React.memo(({
   msg,
   author,
   prevMsg,
-}: { msg: Message; author: User; prevMsg: Message | null; }) => {
+  onDelete,
+  onEditStart,
+  onEditSave,
+  onEditCancel,
+  isEditing,
+  editedText,
+  setEditedText,
+}: { 
+  msg: Message; 
+  author: User; 
+  prevMsg: Message | null; 
+  onDelete: (messageId: MessageId) => void;
+  onEditStart: (message: Message) => void;
+  onEditSave: (messageId: MessageId) => void;
+  onEditCancel: () => void;
+  isEditing: boolean;
+  editedText: string;
+  setEditedText: React.Dispatch<React.SetStateAction<string>>;
+}) => {
   const [isMessageHovered, setIsMessageHovered] = useState(false);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [isReactionMenuOpen, setIsReactionMenuOpen] = useState(false);
@@ -100,7 +119,29 @@ export const ThreadMessageItem = React.memo(({
               <span>{repliedToMessage.text?.substring(0, 30)}...</span>
             </div>
           )}
-          {msg.text && <p className='text-gray-200' dangerouslySetInnerHTML={{ __html: parseMarkdownToHtml(replaceEmojiShortcuts(msg.text)) }}></p>}
+          {isEditing ? (
+            <div className='flex flex-col space-y-2 mt-1'>
+              <input
+                type='text'
+                value={editedText}
+                onChange={(e) => setEditedText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    onEditSave(msg.id);
+                  } else if (e.key === 'Escape') {
+                    onEditCancel();
+                  }
+                }}
+                className='bg-gray-700 text-white p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+              />
+              <div className='flex space-x-2 text-xs text-gray-400'>
+                <button onClick={() => onEditCancel()} className='hover:underline'>Cancel</button>
+                <button onClick={() => onEditSave(msg.id)} className='text-blue-500 hover:underline'>Save</button>
+              </div>
+            </div>
+          ) : (
+            msg.text && <p className='text-gray-200' dangerouslySetInnerHTML={{ __html: parseMarkdownToHtml(replaceEmojiShortcuts(msg.text)) }}></p>
+          )}
           {msg.file && (
             <div className='mt-2'>
               {msg.file.type.startsWith('image/') ? (
@@ -116,7 +157,7 @@ export const ThreadMessageItem = React.memo(({
           <div className='flex items-center space-x-2 mt-2'>
             {msg.reactions && Object.entries(msg.reactions).map(([emoji, userIds]) => (
               userIds.length > 0 && (
-                <div key={emoji} onClick={(e) => {e.stopPropagation(); handleReactionInThread(msg.id, emoji)}} 
+                <div key={emoji} onClick={(e) => {e.stopPropagation(); handleReactionInThread(msg.id, emoji)}}
                   className={`flex items-center space-x-1 bg-gray-800/70 rounded-full px-2 py-1 cursor-pointer hover:bg-gray-600
                   ${userIds.includes(currentUser.id) ? 'border border-blue-500' : 'border border-transparent'}`}>
                   <span>{emoji}</span>
@@ -124,7 +165,7 @@ export const ThreadMessageItem = React.memo(({
                 </div>
               )
             ))}
-            
+
             {msg.reactions && Object.keys(msg.reactions).length > 0 && (
               <DropdownMenu open={isReactionMenuOpen} onOpenChange={setIsReactionMenuOpen}>
                 <DropdownMenuTrigger asChild>
@@ -169,8 +210,18 @@ export const ThreadMessageItem = React.memo(({
               <button onClick={() => handleReactionInThread(msg.id, '❤️')} className='p-1 hover:bg-gray-600 rounded-md' title='React'>
                 ❤️
               </button>
+              {msg.authorId === currentUser.id && (
+                <>
+                  <button onClick={() => onEditStart(msg)} className='p-1 hover:bg-gray-600 rounded-md' title='Edit'>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-pencil"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+                  </button>
+                  <button onClick={() => onDelete(msg.id)} className='p-1 hover:bg-gray-600 rounded-md' title='Delete'>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                  </button>
+                </>
+              )}
             </div>
-          )}
+          )}        
         </div>
       </div>
       <DropdownMenu
@@ -182,7 +233,7 @@ export const ThreadMessageItem = React.memo(({
         </DropdownMenuTrigger>
         <DropdownMenuContent onCloseAutoFocus={(e: Event) => e.preventDefault()} className='bg-gray-800 border-gray-700 text-white'>
           <DropdownMenuItem onClick={() => setReplyingToMessage(msg)}>Reply</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => handleOpenNestedThread(msg)}>Open Thread</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => handleOpenNestedThread(msg)}>Thread</DropdownMenuItem>
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>Add Reaction</DropdownMenuSubTrigger>
               <DropdownMenuPortal>
@@ -195,6 +246,12 @@ export const ThreadMessageItem = React.memo(({
                 </DropdownMenuSubContent>
               </DropdownMenuPortal>
           </DropdownMenuSub>
+          {msg.authorId === currentUser.id && (
+            <>
+              <DropdownMenuItem onClick={() => onEditStart(msg)}>Edit Message</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onDelete(msg.id)} className='text-red-500'>Delete Message</DropdownMenuItem>
+            </>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
     </React.Fragment>

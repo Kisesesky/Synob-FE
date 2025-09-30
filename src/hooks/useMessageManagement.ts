@@ -201,6 +201,7 @@ export const useMessageManagement = (
           authorId: currentUser.id,
           timestamp: new Date().toISOString(),
           ...(replyingToMessage && { repliedToMessageId: replyingToMessage.id }),
+          text: replyText,
         };
     
         const updateFn = (messageToUpdate: Message) => ({
@@ -267,13 +268,13 @@ export const useMessageManagement = (
         }
         event.target.value = '';
       }, [threadStack, selectedChannel, currentUser.id, messages, setMessages]);
-    
+
       const handleReactionInThread = useCallback((messageId: MessageId, emoji: string) => {
         const currentThread = threadStack[threadStack.length - 1];
         if (!currentThread || !selectedChannel) {
           return;
         }
-    
+
         const updateFn = (messageToReact: Message) => {
           const reactions = { ...(messageToReact.reactions || {}) };
           const userList = reactions[emoji] || [];
@@ -287,7 +288,7 @@ export const useMessageManagement = (
           }
           return { ...messageToReact, reactions };
         };
-    
+
         setMessages(prev => ({
           ...prev,
           [selectedChannel.id]: updateMessageRecursively(prev[selectedChannel.id], currentThread.id, (threadMessage) => ({
@@ -295,7 +296,7 @@ export const useMessageManagement = (
             thread: updateMessageRecursively(threadMessage.thread || [], messageId, updateFn),
           })),
         }));
-    
+
         setThreadStack(prev => {
           const newStack = [...prev];
           const updatedCurrentThread = {
@@ -306,6 +307,67 @@ export const useMessageManagement = (
           return newStack;
         });
       }, [threadStack, selectedChannel, currentUser.id, messages, setMessages]);
+    
+      const handleDeleteMessageInThread = useCallback((messageIdToDelete: MessageId) => {
+        const currentThread = threadStack[threadStack.length - 1];
+        if (!currentThread || !selectedChannel || !window.confirm('정말로 이 스레드 메시지를 삭제하시겠습니까?')) {
+          return;
+        }
+
+        const updateFn = (messageToUpdate: Message) => ({
+          ...messageToUpdate,
+          thread: (messageToUpdate.thread || []).filter(msg => msg.id !== messageIdToDelete),
+        });
+
+        setMessages(prev => ({
+          ...prev,
+          [selectedChannel.id]: updateMessageRecursively(prev[selectedChannel.id], currentThread.id, updateFn),
+        }));
+
+        setThreadStack(prev => {
+          const newStack = [...prev];
+          const updatedCurrentThread = updateFn(currentThread);
+          newStack[newStack.length - 1] = updatedCurrentThread;
+          return newStack;
+        });
+      }, [threadStack, selectedChannel, setMessages]);
+
+      const handleStartEditMessageInThread = useCallback((message: Message) => {
+        if (message.authorId !== currentUser.id) {
+          return;
+        }
+        setEditingMessageId(message.id);
+        setEditedMessageText(message.text || '');
+      }, [currentUser.id]);
+
+      const handleSaveEditMessageInThread = useCallback((messageIdToSave: MessageId) => {
+        const currentThread = threadStack[threadStack.length - 1];
+        if (!currentThread || !selectedChannel || editingMessageId === null) {
+          return;
+        }
+
+        const updateFn = (messageToUpdate: Message) => ({
+          ...messageToUpdate,
+          thread: (messageToUpdate.thread || []).map(msg =>
+            msg.id === messageIdToSave ? { ...msg, text: editedMessageText } : msg
+          ),
+        });
+
+        setMessages(prev => ({
+          ...prev,
+          [selectedChannel.id]: updateMessageRecursively(prev[selectedChannel.id], currentThread.id, updateFn),
+        }));
+
+        setThreadStack(prev => {
+          const newStack = [...prev];
+          const updatedCurrentThread = updateFn(currentThread);
+          newStack[newStack.length - 1] = updatedCurrentThread;
+          return newStack;
+        });
+
+        setEditingMessageId(null);
+        setEditedMessageText('');
+      }, [threadStack, selectedChannel, editingMessageId, editedMessageText, setMessages]);
 
     return {
         threadStack,
@@ -334,5 +396,8 @@ export const useMessageManagement = (
         handleReactionInThread,
         handleCancelReply,
         handleDmChannelSelect,
+        handleDeleteMessageInThread,
+        handleStartEditMessageInThread,
+        handleSaveEditMessageInThread,
     };
 };

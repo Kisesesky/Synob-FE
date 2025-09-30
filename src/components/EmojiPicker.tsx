@@ -17,6 +17,10 @@ const categoryIcons: { [key: string]: React.ReactNode } = {
   'ActivitiesAndSports': '⚽', 
   'ObjectsAndTechnology': '💻',
   'SymbolsAndSigns': '❤️',
+  'Sky': '⛅',
+  'Sound': '🎵',
+  'ComputerAndVideo': '🔋',
+  'Sign': '⛔',
   'Flags' : '🚩',
 };
 

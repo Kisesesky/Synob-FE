@@ -227,7 +227,7 @@ export const MessageItem = React.memo(({
           )}
         </div>
       </div>
-      <DropdownMenu 
+      <DropdownMenu
         open={contextMenu?.type === 'message' && contextMenu.id === msg.id}
         onOpenChange={(isOpen) => !isOpen && setContextMenu(null)}
       >
