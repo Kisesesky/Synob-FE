@@ -1,10 +1,10 @@
-import { useState, useRef } from 'react';
-import { X, Plus, ArrowLeft } from 'lucide-react';
-import { useAppContext } from '@/contexts/AppContext';
+import { AppContextType, useAppContext } from '@/contexts/AppContext';
+import { ArrowLeft, File as FileIcon, Plus, X } from 'lucide-react';
+import { useRef, useState } from 'react';
 import { ThreadMessageItem } from './ThreadMessageItem';
 
 export const ThreadView = () => {
-  const { 
+  const {
     threadStack,
     users,
     handleCloseThread,
@@ -20,8 +20,9 @@ export const ThreadView = () => {
     editedMessageText,
     setEditedMessageText,
     handleCancelEditMessage,
-  } = useAppContext();
-
+    pendingFile,
+    handleRemovePendingFile,
+  } = useAppContext() as AppContextType; // Explicitly cast here
   const [reply, setReply] = useState('');
   const threadFileInputRef = useRef<HTMLInputElement>(null);
 
@@ -32,7 +33,8 @@ export const ThreadView = () => {
   const currentThread = threadStack[threadStack.length - 1];
 
   const handleSendReply = () => {
-    if (reply.trim() === '') {
+    // Allow sending if there's a pending file, even if reply text is empty
+    if (reply.trim() === '' && !pendingFile) {
       return;
     }
     handleReplyInThread(reply);
@@ -106,17 +108,36 @@ export const ThreadView = () => {
             <X className='h-4 w-4 text-gray-400 cursor-pointer hover:text-white' onClick={handleCancelReply} />
           </div>
         )}
-        <div className={`bg-gray-600 p-2 rounded-lg flex items-center ${replyingToMessage ? 'rounded-t-none' : ''}`}>
-            <input type='file' ref={threadFileInputRef} onChange={handleFileUploadInThread} className='hidden' />
-            <Plus className='h-6 w-6 text-gray-400 mx-2 cursor-pointer hover:text-white' onClick={() => threadFileInputRef.current?.click()}/>
-            <input 
-              type='text' 
-              placeholder={replyingToMessage ? `Replying to ${repliedToAuthor?.name}...` : 'Reply...'} 
-              className='flex-1 bg-transparent focus:outline-none text-white'
-              value={reply}
-              onChange={(e) => setReply(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSendReply()}
-            />
+        {pendingFile && ( // Display pending file preview
+          <div className={`relative flex items-center bg-gray-700 p-2 pr-8 ${replyingToMessage ? 'rounded-t-none' : 'rounded-t-lg'} border-b border-gray-600 shadow-md`}>
+            <div className='flex items-center flex-grow'>
+              {pendingFile.type.startsWith('image/') ? (
+                <img src={pendingFile.url} alt="Preview" className='h-12 w-12 object-cover rounded-md mr-2' />
+              ) : (
+                <FileIcon className='h-7 w-7 text-gray-400 mr-2 p-1 bg-gray-600 rounded-md' /> // Use FileIcon, add padding/bg
+              )}
+              <span className='text-sm text-white truncate'>{pendingFile.name}</span>
+            </div>
+            <button
+              onClick={handleRemovePendingFile}
+              className='absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white p-1 rounded-full hover:bg-gray-600 transition-colors'
+              title='Remove file'
+            >
+              <X className='h-4 w-4' />
+            </button>
+          </div>
+        )}
+        <div className={`bg-gray-600 p-2 rounded-lg flex items-center ${replyingToMessage || pendingFile ? 'rounded-t-none' : ''}`}>
+          <input type='file' ref={threadFileInputRef} onChange={handleFileUploadInThread} className='hidden' />
+          <Plus className='h-6 w-6 text-gray-400 mx-2 cursor-pointer hover:text-white' onClick={() => threadFileInputRef.current?.click()}/>
+          <input 
+            type='text' 
+            placeholder={replyingToMessage ? `Replying to ${repliedToAuthor?.name}...` : 'Reply...'} 
+            className='flex-1 bg-transparent focus:outline-none text-white'
+            value={reply}
+            onChange={(e) => setReply(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSendReply()}
+          />
         </div>
       </div>
     </div>

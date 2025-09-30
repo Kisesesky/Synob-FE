@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Hash, Plus, X, Search } from 'lucide-react'; // Import X and Search for cancel and search button
+import { Hash, Plus, X, Search, File as FileIcon } from 'lucide-react'; // Import X and Search for cancel and search button
 import { useAppContext } from '@/contexts/AppContext';
 import { MessageItem } from './MessageItem';
 import { Message } from '@/lib/types';
 import { groupMessagesByDate } from '../../lib/utils';
 import { EmojiPicker } from '@/components/EmojiPicker';
+import { AppContextType } from '@/contexts/AppContext'; // Add this import
 
 interface DateHeader {
   type: 'dateHeader';
@@ -15,29 +16,30 @@ interface DateHeader {
 type GroupedMessageItem = Message | DateHeader;
 
 export const ChatArea = () => {
-  const { 
-    selectedChannel, 
+  const {
+    selectedChannel,
     messages, // messages for all channels
-    isSearching, 
-    searchResults, 
-    searchQuery, 
-    setSearchQuery, 
-    handleSearch, 
-    currentMessage, 
-    setCurrentMessage, 
-    handleSendMessage, 
-    fileInputRef, 
-    handleFileUpload, 
-    messagesEndRef, 
+    isSearching,
+    searchResults,
+    searchQuery,
+    setSearchQuery,
+    handleSearch,
+    currentMessage,
+    setCurrentMessage,
+    handleSendMessage,
+    fileInputRef,
+    handleFileUpload,
+    messagesEndRef,
     replyingToMessage, // Import replyingToMessage
     handleCancelReply, // Import handleCancelReply
     users, // Import users to get author info
     viewMode,
     selectedDmChannel,
     setIsSearching, // Import setIsSearching
+    pendingFile,
+    handleRemovePendingFile,
     ...messageItemProps
-  } = useAppContext();
-
+  } = useAppContext() as AppContextType; // Explicitly cast here
   const handleEmojiSelect = (emoji: string) => {
     setCurrentMessage(currentMessage + emoji);
   };
@@ -129,7 +131,26 @@ export const ChatArea = () => {
             <X className='h-4 w-4 text-gray-400 cursor-pointer hover:text-white' onClick={handleCancelReply} />
           </div>
         )}
-        <div className={`bg-gray-600 p-2 rounded-lg flex items-center ${replyingToMessage ? 'rounded-t-none' : ''}`}>
+        {pendingFile && ( // Display pending file preview
+          <div className={`relative flex items-center bg-gray-800 p-2 pr-8 ${replyingToMessage ? 'rounded-t-none' : 'rounded-t-lg'} border-b border-gray-600 shadow-md`}>
+            <div className='flex items-center flex-grow'>
+              {pendingFile.type.startsWith('image/') ? (
+                <img src={pendingFile.url} alt="Preview" className='h-16 w-16 object-cover rounded-md mr-2' />
+              ) : (
+                <FileIcon className='h-7 w-7 text-gray-400 mr-2 p-1 bg-gray-600 rounded-md' /> // Use FileIcon, add padding/bg
+              )}
+              <span className='text-sm text-white truncate'>{pendingFile.name}</span>
+            </div>
+            <button
+              onClick={handleRemovePendingFile}
+              className='absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white p-1 rounded-full hover:bg-gray-600 transition-colors'
+              title='Remove file'
+            >
+              <X className='h-4 w-4' />
+            </button>
+          </div>
+        )}
+        <div className={`bg-gray-600 p-2 rounded-lg flex items-center ${replyingToMessage || pendingFile ? 'rounded-t-none' : ''}`}>
           <input type='file' ref={fileInputRef} onChange={handleFileUpload} className='hidden' />
           <Plus className='h-6 w-6 text-gray-400 mx-2 cursor-pointer hover:text-white' onClick={() => fileInputRef.current?.click()}/>
           <input type='text'

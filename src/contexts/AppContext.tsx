@@ -16,7 +16,7 @@ type UseSearchManagementReturn = ReturnType<typeof useSearchManagement>;
 type UseUIManagementReturn = ReturnType<typeof useUIManagement>;
 
 // 1. Context Type
-interface AppContextType extends UseServerManagementReturn, UseMessageManagementReturn, UseSearchManagementReturn, UseUIManagementReturn {
+export interface AppContextType extends UseServerManagementReturn, UseMessageManagementReturn, UseSearchManagementReturn, UseUIManagementReturn {
   // Global State
   currentUser: User;
   users: { [id: number]: User };

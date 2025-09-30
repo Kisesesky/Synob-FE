@@ -4,8 +4,9 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuPortal,
   DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { File as FileIcon, Reply as ReplyIcon, MessageSquare as MessageSquareIcon, Smile } from 'lucide-react';
+import { File as FileIcon, Reply as ReplyIcon, MessageSquare as MessageSquareIcon, Smile, Eye as EyeIcon, Download as DownloadIcon, Edit as EditIcon, Trash2 as TrashIcon } from 'lucide-react';
 import type { Message, User } from '@/lib/types';
+import { ImageViewerModal } from '@/components/ImageViewerModal'; // New import
 import type { MessageId } from '@/lib/brandedTypes';
 import { useAppContext } from '@/contexts/AppContext';
 import { formatTimestamp, parseMarkdownToHtml, replaceEmojiShortcuts } from '../../lib/utils'; // Import formatTimestamp and parseMarkdownToHtml
@@ -38,6 +39,9 @@ export const ThreadMessageItem = React.memo(({
   const [isMessageHovered, setIsMessageHovered] = useState(false);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [isReactionMenuOpen, setIsReactionMenuOpen] = useState(false);
+  const [isImageViewerOpen, setIsImageViewerOpen] = useState(false); // New state
+  const [imageViewerSrc, setImageViewerSrc] = useState(''); // New state
+  const [imageViewerFileName, setImageViewerFileName] = useState(''); // New state
   const { 
     currentUser,
     contextMenu,
@@ -145,12 +149,21 @@ export const ThreadMessageItem = React.memo(({
           {msg.file && (
             <div className='mt-2'>
               {msg.file.type.startsWith('image/') ? (
-                <Image src={msg.file.url} alt={msg.file.name} width={200} height={200} className='rounded-md'/>
+                <button
+                  onClick={() => {
+                    setImageViewerSrc(msg.file!.url);
+                    setImageViewerFileName(msg.file!.name);
+                    setIsImageViewerOpen(true);
+                  }}
+                  className='block cursor-pointer'
+                >
+                  <Image src={msg.file.url} alt={msg.file.name} width={200} height={200} className='rounded-md'/>
+                </button>
               ) : (
-              <div className='flex items-center bg-gray-800 p-2 rounded-md border border-gray-600'>
-                  <FileIcon className='h-6 w-6 mr-2'/>
+                <a href={msg.file.url} download={msg.file.name} target="_blank" rel="noopener noreferrer" className='flex items-center bg-gray-800 p-2 rounded-md border border-gray-600 hover:bg-gray-700 cursor-pointer'>
+                  <FileIcon className='h-5 w-5 mr-2'/>
                   <span>{msg.file.name}</span>
-                </div>
+                </a>
               )}
             </div>
           )}
@@ -232,8 +245,33 @@ export const ThreadMessageItem = React.memo(({
           <div style={{ position: 'fixed', top: contextMenu?.y ?? 0, left: contextMenu?.x ?? 0 }} />
         </DropdownMenuTrigger>
         <DropdownMenuContent onCloseAutoFocus={(e: Event) => e.preventDefault()} className='bg-gray-800 border-gray-700 text-white'>
-          <DropdownMenuItem onClick={() => setReplyingToMessage(msg)}>Reply</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => handleOpenNestedThread(msg)}>Thread</DropdownMenuItem>
+          {msg.file && msg.file.type.startsWith('image/') && (
+            <DropdownMenuItem onClick={() => {
+              setImageViewerSrc(msg.file!.url);
+              setImageViewerFileName(msg.file!.name);
+              setIsImageViewerOpen(true);
+            }} className='flex items-center'>
+              <EyeIcon className='h-4 w-4 mr-2' /> View Image
+            </DropdownMenuItem>
+          )}
+          {msg.file && (
+            <DropdownMenuItem onClick={() => {
+              const link = document.createElement('a');
+              link.href = msg.file!.url;
+              link.download = msg.file!.name;
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+            }} className='flex items-center'>
+              <DownloadIcon className='h-4 w-4 mr-2' /> Save File
+            </DropdownMenuItem>
+          )}
+          <DropdownMenuItem onClick={() => setReplyingToMessage(msg)} className='flex items-center'>
+            <ReplyIcon className='h-4 w-4 mr-2' /> Reply
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => handleOpenNestedThread(msg)} className='flex items-center'>
+            <MessageSquareIcon className='h-4 w-4 mr-2' /> Thread
+          </DropdownMenuItem>
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>Add Reaction</DropdownMenuSubTrigger>
               <DropdownMenuPortal>
@@ -248,12 +286,21 @@ export const ThreadMessageItem = React.memo(({
           </DropdownMenuSub>
           {msg.authorId === currentUser.id && (
             <>
-              <DropdownMenuItem onClick={() => onEditStart(msg)}>Edit Message</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onDelete(msg.id)} className='text-red-500'>Delete Message</DropdownMenuItem>
+              {!msg.file && <DropdownMenuItem onClick={() => onEditStart(msg)} className='flex items-center'><EditIcon className='h-4 w-4 mr-2' /> Edit Message</DropdownMenuItem>}
+              <DropdownMenuItem onClick={() => onDelete(msg.id)} className='text-red-500 flex items-center'><TrashIcon className='h-4 w-4 mr-2' /> Delete Message</DropdownMenuItem>
             </>
           )}
         </DropdownMenuContent>
       </DropdownMenu>
+      {isImageViewerOpen && (
+        <ImageViewerModal
+          src={imageViewerSrc}
+          alt={imageViewerFileName}
+          fileName={imageViewerFileName}
+          isOpen={isImageViewerOpen}
+          onClose={() => setIsImageViewerOpen(false)}
+        />
+      )}
     </React.Fragment>
   )
 });

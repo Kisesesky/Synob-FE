@@ -20,6 +20,7 @@ export const useMessageManagement = (
     const [editingMessageId, setEditingMessageId] = useState<MessageId | null>(null);
     const [editedMessageText, setEditedMessageText] = useState('');
     const [replyingToMessage, setReplyingToMessage] = useState<Message | null>(null);
+    const [pendingFile, setPendingFile] = useState<{ name: string; type: string; url: string; fileObject?: File; } | null>(null);
 
     const handleDmChannelSelect = useCallback((userId: UserId) => {
         const existingChannel = Object.values(dmChannels).find(channel => channel.name.includes(users[userId].name));
@@ -37,8 +38,8 @@ export const useMessageManagement = (
 
     const handleSendMessage = useCallback(() => {
         console.log('handleSendMessage called'); // Debug log
-        if (currentMessage.trim() === '' || !selectedChannel) {
-          console.log('handleSendMessage - Message empty or no channel selected'); // Debug log
+        if (!selectedChannel || (currentMessage.trim() === '' && !pendingFile)) {
+          console.log('handleSendMessage - Message empty or no channel selected, or no pending file'); // Debug log
           return;
         }
         const newMessage: Message = {
@@ -47,6 +48,7 @@ export const useMessageManagement = (
           text: currentMessage,
           timestamp: new Date().toISOString(),
           ...(replyingToMessage && { repliedToMessageId: replyingToMessage.id }),
+          ...(pendingFile && { file: { name: pendingFile.name, type: pendingFile.type, url: pendingFile.url || URL.createObjectURL(pendingFile.fileObject!) } }),
         };
         console.log('handleSendMessage - newMessage:', newMessage); // Debug log
         setMessages(prev => {
@@ -56,42 +58,37 @@ export const useMessageManagement = (
         });
         setCurrentMessage('');
         setReplyingToMessage(null);
-      }, [currentMessage, selectedChannel, currentUser.id, replyingToMessage, setMessages]);
+        setPendingFile(null); // Clear pending file after sending
+      }, [currentMessage, selectedChannel, currentUser.id, replyingToMessage, pendingFile, setMessages, setPendingFile]);
     
       const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
-        if (!file || !selectedChannel) {
+        if (!file) { // No need for selectedChannel here, just set pending file
           return;
         }
     
         const reader = new FileReader();
         reader.onload = (e: ProgressEvent<FileReader>) => {
-          const newFileMessage: Message = {
-            id: Date.now() as MessageId,
-            authorId: currentUser.id,
-            timestamp: new Date().toISOString(),
-            file: {
-              name: file.name,
-              type: file.type,
-              url: e.target?.result as string,
-            }
-          };
-          setMessages(prev => ({ ...prev, [selectedChannel.id]: [...(prev[selectedChannel.id] || []), newFileMessage] }));
+          setPendingFile({
+            name: file.name,
+            type: file.type,
+            url: e.target?.result as string,
+            fileObject: file, // Store the actual file object
+          });
         };
     
         if (file.type.startsWith('image/')) {
           reader.readAsDataURL(file);
         } else {
-            const newFileMessage: Message = {
-              id: Date.now() as MessageId,
-              authorId: currentUser.id,
-              timestamp: new Date().toISOString(),
-              file: { name: file.name, type: file.type, url: '' } 
-            };
-          setMessages(prev => ({ ...prev, [selectedChannel.id]: [...(prev[selectedChannel.id] || []), newFileMessage] }));
+          setPendingFile({
+            name: file.name,
+            type: file.type,
+            url: '', // No URL for non-image files until sent/uploaded
+            fileObject: file,
+          });
         }
-        event.target.value = '';
-      }, [selectedChannel, currentUser.id, setMessages]);
+        event.target.value = ''; // Clear the file input
+      }, [setPendingFile]);
     
       const handleStartEditMessage = useCallback((message: Message) => {
         if (message.authorId !== currentUser.id) {
@@ -176,6 +173,13 @@ export const useMessageManagement = (
         setReplyingToMessage(null);
       }, []);
 
+      const handleRemovePendingFile = useCallback(() => {
+        if (pendingFile?.url && pendingFile.fileObject) {
+          URL.revokeObjectURL(pendingFile.url); // Clean up URL object
+        }
+        setPendingFile(null);
+      }, [pendingFile, setPendingFile]);
+
       const updateMessageRecursively = (msgs: Message[], targetId: MessageId, updateFn: (message: Message) => Message): Message[] => {
         return msgs.map(msg => {
           if (msg.id === targetId) {
@@ -193,7 +197,7 @@ export const useMessageManagement = (
     
       const handleReplyInThread = useCallback((replyText: string) => {
         const currentThread = threadStack[threadStack.length - 1];
-        if (!currentThread || !selectedChannel) {
+        if (!currentThread || !selectedChannel || (replyText.trim() === '' && !pendingFile)) {
           return;
         }
         const newReply: Message = {
@@ -202,6 +206,7 @@ export const useMessageManagement = (
           timestamp: new Date().toISOString(),
           ...(replyingToMessage && { repliedToMessageId: replyingToMessage.id }),
           text: replyText,
+          ...(pendingFile && { file: { name: pendingFile.name, type: pendingFile.type, url: pendingFile.url || URL.createObjectURL(pendingFile.fileObject!) } }),
         };
     
         const updateFn = (messageToUpdate: Message) => ({
@@ -222,52 +227,37 @@ export const useMessageManagement = (
         });
     
         setReplyingToMessage(null); // Clear reply state after sending
-      }, [threadStack, selectedChannel, currentUser.id, messages, replyingToMessage, setMessages]);
+        setPendingFile(null); // Clear pending file after sending
+      }, [threadStack, selectedChannel, currentUser.id, messages, replyingToMessage, pendingFile, setMessages, setPendingFile]);
     
       const handleFileUploadInThread = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
-        const currentThread = threadStack[threadStack.length - 1];
-        if (!file || !currentThread || !selectedChannel) {
+        if (!file) { // No need for currentThread or selectedChannel here, just set pending file
           return;
         }
     
-        const processFile = (fileUrl: string) => {
-          const newFileMessage: Message = {
-            id: Date.now() as MessageId,
-            authorId: currentUser.id,
-            timestamp: new Date().toISOString(),
-            file: { name: file.name, type: file.type, url: fileUrl },
-          };
-    
-          const updateFn = (messageToUpdate: Message) => ({
-            ...messageToUpdate,
-            thread: [...(messageToUpdate.thread || []), newFileMessage],
-          });
-    
-          setMessages(prev => ({
-            ...prev,
-            [selectedChannel.id]: updateMessageRecursively(prev[selectedChannel.id], currentThread.id, updateFn),
-          }));
-    
-          setThreadStack(prev => {
-            const newStack = [...prev];
-            const updatedCurrentThread = updateFn(currentThread);
-            newStack[newStack.length - 1] = updatedCurrentThread;
-            return newStack;
+        const reader = new FileReader();
+        reader.onload = (e: ProgressEvent<FileReader>) => {
+          setPendingFile({
+            name: file.name,
+            type: file.type,
+            url: e.target?.result as string,
+            fileObject: file, // Store the actual file object
           });
         };
     
         if (file.type.startsWith('image/')) {
-          const reader = new FileReader();
-          reader.onload = (e: ProgressEvent<FileReader>) => {
-            processFile(e.target?.result as string);
-          };
           reader.readAsDataURL(file);
         } else {
-          processFile('');
+          setPendingFile({
+            name: file.name,
+            type: file.type,
+            url: '', // No URL for non-image files until sent/uploaded
+            fileObject: file,
+          });
         }
-        event.target.value = '';
-      }, [threadStack, selectedChannel, currentUser.id, messages, setMessages]);
+        event.target.value = ''; // Clear the file input
+      }, [setPendingFile]);
 
       const handleReactionInThread = useCallback((messageId: MessageId, emoji: string) => {
         const currentThread = threadStack[threadStack.length - 1];
@@ -399,5 +389,7 @@ export const useMessageManagement = (
         handleDeleteMessageInThread,
         handleStartEditMessageInThread,
         handleSaveEditMessageInThread,
+        pendingFile,
+        handleRemovePendingFile,
     };
 };

@@ -8,9 +8,10 @@ import {
   DropdownMenuSubTrigger, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
-import { File as FileIcon, MessageSquare as MessageSquareIcon, Reply as ReplyIcon, Edit as EditIcon, Trash2 as TrashIcon, Smile } from 'lucide-react';
+import { File as FileIcon, MessageSquare as MessageSquareIcon, Reply as ReplyIcon, Edit as EditIcon, Trash2 as TrashIcon, Smile, Eye as EyeIcon, Download as DownloadIcon } from 'lucide-react';
 import type { Message } from '@/lib/types';
 import { useAppContext } from '@/contexts/AppContext';
+import { ImageViewerModal } from '@/components/ImageViewerModal'; // New import
 import { formatTimestamp, parseMarkdownToHtml, replaceEmojiShortcuts } from '../../lib/utils'; // Import formatTimestamp and parseMarkdownToHtml
 import { EMOJI_CATEGORIES } from '../../lib/emojis';
 import { useState, useRef } from 'react';
@@ -24,6 +25,9 @@ export const MessageItem = React.memo(({
   const [isMessageHovered, setIsMessageHovered] = useState(false);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [isReactionMenuOpen, setIsReactionMenuOpen] = useState(false);
+  const [isImageViewerOpen, setIsImageViewerOpen] = useState(false); // New state
+  const [imageViewerSrc, setImageViewerSrc] = useState(''); // New state
+  const [imageViewerFileName, setImageViewerFileName] = useState(''); // New state
   const { 
     users,
     currentUser,
@@ -144,12 +148,21 @@ export const MessageItem = React.memo(({
               {msg.file && (
                 <div className='mt-2'>
                   {msg.file.type.startsWith('image/') ? (
-                    <Image src={msg.file.url} alt={msg.file.name} width={200} height={200} className='rounded-md'/>
+                    <button
+                      onClick={() => {
+                        setImageViewerSrc(msg.file!.url);
+                        setImageViewerFileName(msg.file!.name);
+                        setIsImageViewerOpen(true);
+                      }}
+                      className='block cursor-pointer'
+                    >
+                      <Image src={msg.file.url} alt={msg.file.name} width={200} height={200} className='rounded-md'/>
+                    </button>
                   ) : (
-                    <div className='flex items-center bg-gray-800 p-2 rounded-md border border-gray-600'>
-                      <FileIcon className='h-6 w-6 mr-2'/>
+                    <a href={msg.file.url} download={msg.file.name} target="_blank" rel="noopener noreferrer" className='flex items-center bg-gray-800 p-2 rounded-md border border-gray-600 hover:bg-gray-700 cursor-pointer'>
+                      <FileIcon className='h-5 w-5 mr-2'/>
                       <span>{msg.file.name}</span>
-                    </div>
+                    </a>
                   )}
                 </div>
               )}
@@ -216,10 +229,10 @@ export const MessageItem = React.memo(({
               {msg.authorId === currentUser.id && (
                 <>
                   <button onClick={() => handleStartEditMessage(msg)} className='p-1 hover:bg-gray-600 rounded-md' title='Edit'>
-                    <EditIcon size={16} /> {/* Using FileIcon as a placeholder for Edit, consider a better icon */}
+                    <EditIcon size={16} />
                   </button>
                   <button onClick={() => handleDeleteMessage(msg.id)} className='p-1 hover:bg-gray-600 rounded-md text-red-500' title='Delete'>
-                    <TrashIcon size={16} /> {/* Using FileIcon as a placeholder for Delete, consider a better icon */}
+                    <TrashIcon size={16} />
                   </button>
                 </>
               )}
@@ -235,8 +248,33 @@ export const MessageItem = React.memo(({
           <div style={{ position: 'fixed', top: contextMenu?.y ?? 0, left: contextMenu?.x ?? 0 }} />
         </DropdownMenuTrigger>
         <DropdownMenuContent onCloseAutoFocus={(e) => e.preventDefault()} className='bg-gray-800 border-gray-700 text-white'>
-          <DropdownMenuItem onClick={() => handleOpenThread(msg)}>Thread</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setReplyingToMessage(msg)}>Reply</DropdownMenuItem> {/* New Reply button */}
+          {msg.file && msg.file.type.startsWith('image/') && (
+            <DropdownMenuItem onClick={() => {
+              setImageViewerSrc(msg.file!.url);
+              setImageViewerFileName(msg.file!.name);
+              setIsImageViewerOpen(true);
+            }} className='flex items-center'>
+              <EyeIcon className='h-4 w-4 mr-2' /> View Image
+            </DropdownMenuItem>
+          )}
+          {msg.file && (
+            <DropdownMenuItem onClick={() => {
+              const link = document.createElement('a');
+              link.href = msg.file!.url;
+              link.download = msg.file!.name;
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+            }} className='flex items-center'>
+              <DownloadIcon className='h-4 w-4 mr-2' /> Save File
+            </DropdownMenuItem>
+          )}
+          <DropdownMenuItem onClick={() => handleOpenThread(msg)} className='flex items-center'>
+            <MessageSquareIcon className='h-4 w-4 mr-2' /> Thread
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setReplyingToMessage(msg)} className='flex items-center'>
+            <ReplyIcon className='h-4 w-4 mr-2' /> Reply
+          </DropdownMenuItem> {/* New Reply button */}
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>Add Reaction</DropdownMenuSubTrigger>
               <DropdownMenuPortal>
@@ -249,15 +287,24 @@ export const MessageItem = React.memo(({
                 </DropdownMenuSubContent>
               </DropdownMenuPortal>
           </DropdownMenuSub>
-          {msg.authorId === currentUser.id && !msg.file && (
+          {msg.authorId === currentUser.id && (
             <>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => handleStartEditMessage(msg)}>Edit Message</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleDeleteMessage(msg.id)} className='text-red-500'>Delete Message</DropdownMenuItem>
+              {!msg.file && <DropdownMenuItem onClick={() => handleStartEditMessage(msg)} className='flex items-center'><EditIcon className='h-4 w-4 mr-2' /> Edit Message</DropdownMenuItem>}
+              <DropdownMenuItem onClick={() => handleDeleteMessage(msg.id)} className='text-red-500 flex items-center'><TrashIcon className='h-4 w-4 mr-2' /> Delete Message</DropdownMenuItem>
             </>
           )}
         </DropdownMenuContent>
       </DropdownMenu>
+      {isImageViewerOpen && (
+        <ImageViewerModal
+          src={imageViewerSrc}
+          alt={imageViewerFileName}
+          fileName={imageViewerFileName}
+          isOpen={isImageViewerOpen}
+          onClose={() => setIsImageViewerOpen(false)}
+        />
+      )}
     </React.Fragment>
   )
 });
