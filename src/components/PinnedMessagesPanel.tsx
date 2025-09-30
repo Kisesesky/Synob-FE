@@ -9,13 +9,16 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 export const PinnedMessagesPanel = () => {
   const { isPinnedMessagesOpen, setIsPinnedMessagesOpen, messages, selectedChannel, users } = useAppContext();
 
+  const pinnedMessages = useMemo(() => {
+    if (!selectedChannel) return [];
+    return (messages[selectedChannel.id] || []).filter(msg => msg.isPinned);
+  }, [messages, selectedChannel]);
+
   console.log(`PinnedMessagesPanel: Rendering for channel ${selectedChannel?.id}, open: ${isPinnedMessagesOpen}`);
 
   if (!isPinnedMessagesOpen || !selectedChannel) {
     return null;
   }
-
-  const pinnedMessages = useMemo(() => (messages[selectedChannel.id] || []).filter(msg => msg.isPinned), [messages, selectedChannel.id]);
   console.log(`PinnedMessagesPanel: Found ${pinnedMessages.length} pinned messages.`);
 
   return (
