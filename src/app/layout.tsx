@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Roboto } from 'next/font/google';
 import './globals.css';
 
@@ -11,10 +11,7 @@ const roboto = Roboto({
 export const metadata: Metadata = {
   title: 'Synob App',
   description: 'A simple clock, weather, and lock screen application.',
-  // PWA Meta Tags
-  manifest: "/manifest.json", // Assuming a manifest file will be added later
-  themeColor: '#000000',
-  viewport: 'width=device-width, initial-scale=1, viewport-fit=cover',
+  manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
@@ -43,3 +40,10 @@ export default function RootLayout({
     </html>
   );
 }
+
+export const viewport: Viewport = {
+  themeColor: '#000000',
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: "cover",
+};
