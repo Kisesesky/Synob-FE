@@ -4,7 +4,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle // Removed DialogClose
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Download, ZoomIn, ZoomOut, X } from 'lucide-react'; // Removed X, added ZoomIn/Out
+import { Download, ZoomIn, ZoomOut, X, RotateCcw, RotateCw } from 'lucide-react';
 
 interface ImageViewerModalProps {
   src: string;
@@ -17,7 +17,8 @@ interface ImageViewerModalProps {
 export const ImageViewerModal: React.FC<ImageViewerModalProps> = ({
   src, alt, fileName, isOpen, onClose
 }) => {
-  const [zoomLevel, setZoomLevel] = useState(1.0); // New state for zoom
+  const [zoomLevel, setZoomLevel] = useState(1.0);
+  const [rotation, setRotation] = useState(0);
 
   const handleDownload = () => {
     const link = document.createElement('a');
@@ -28,50 +29,72 @@ export const ImageViewerModal: React.FC<ImageViewerModalProps> = ({
     document.body.removeChild(link);
   };
 
+  const handleClose = () => {
+    onClose();
+    // Reset state on close
+    setTimeout(() => {
+        setZoomLevel(1.0);
+        setRotation(0);
+    }, 200); // Delay to match animation
+  }
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[700px] w-full max-h-[calc(100vh-100px)] p-0 bg-neutral-950 border border-neutral-800 rounded-xl overflow-hidden shadow-lg flex flex-col"> {/* Slightly smaller max-w, more vertical padding, less shadow */}
+    <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
+      <DialogContent className="sm:max-w-[700px] w-full max-h-[calc(100vh-80px)] p-0 bg-slate-50 border border-slate-200 rounded-xl overflow-hidden shadow-2xl flex flex-col dark:bg-slate-900 dark:border-slate-700">
         {/* Header */}
-        <DialogHeader className="sticky top-0 z-10 flex items-center justify-between px-4 py-2 
-          bg-neutral-900/10 backdrop-blur-sm border-b border-neutral-800 flex-shrink-0"> {/* Less padding, more subtle background/border */}
-          <DialogTitle className="text-white text-md font-medium truncate">
+        <DialogHeader className="sticky top-0 z-10 flex items-center justify-between px-4 py-2 bg-slate-100 border-b border-slate-200 flex-shrink-0 dark:bg-slate-800 dark:border-slate-700">
+          <DialogTitle className="text-slate-900 text-md font-medium truncate dark:text-slate-100">
             {fileName}
           </DialogTitle>
           
-          <div className="flex items-center space-x-2"> {/* Smaller space-x */}
+          <div className="flex items-center space-x-1">
+            <Button
+              variant="ghost"
+              onClick={() => setRotation(prev => prev - 90)}
+              className="text-slate-500 hover:text-slate-900 hover:bg-slate-200 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-slate-700"
+            >
+              <RotateCcw className="h-5 w-5" />
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => setRotation(prev => prev + 90)}
+              className="text-slate-500 hover:text-slate-900 hover:bg-slate-200 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-slate-700"
+            >
+              <RotateCw className="h-5 w-5" />
+            </Button>
             <Button
               variant="ghost"
               onClick={() => setZoomLevel(prev => Math.min(prev + 0.2, 3))}
-              className="text-gray-400 hover:text-white hover:bg-neutral-800 px-3 py-2" // Smaller padding
+              className="text-slate-500 hover:text-slate-900 hover:bg-slate-200 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-slate-700"
             >
-              <ZoomIn className="h-8 w-8" /> {/* Smaller icons */}
+              <ZoomIn className="h-5 w-5" />
             </Button>
             <Button
               variant="ghost"
               onClick={() => setZoomLevel(prev => Math.max(prev - 0.2, 0.5))}
-              className="text-gray-400 hover:text-white hover:bg-neutral-800 px-3 py-2" // Smaller padding
+              className="text-slate-500 hover:text-slate-900 hover:bg-slate-200 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-slate-700"
             >
-              <ZoomOut className="h-8 w-8" /> {/* Smaller icons */}
+              <ZoomOut className="h-5 w-5" />
             </Button>
             <Button
               variant="ghost"
               onClick={handleDownload}
-              className="text-gray-400 hover:text-white hover:bg-neutral-800 px-3 py-2" // Smaller padding
+              className="text-slate-500 hover:text-slate-900 hover:bg-slate-200 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-slate-700"
             >
-              <Download className="h-8 w-8" /> {/* Smaller icons */}
+              <Download className="h-5 w-5" />
             </Button>
             <Button
               variant="ghost"
               onClick={onClose}
-              className="text-gray-300 hover:text-white hover:bg-neutral-800 px-3 py-2 rounded-lg"
+              className="text-slate-500 hover:text-slate-900 hover:bg-slate-200 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-slate-700"
             >
-              <X className="h-6 w-6" />
+              <X className="h-5 w-5" />
             </Button>
           </div>
         </DialogHeader>
 
         {/* Image Area */}
-        <div className="flex-1 flex items-center justify-center p-4 bg-gradient-to-b bg-neutral-900 overflow-auto relative"> {/* Less padding */}
+        <div className="flex-1 flex items-center justify-center p-8 bg-slate-200/50 overflow-auto relative dark:bg-slate-900/50">
           <div className="relative w-full h-full flex items-center justify-center">
             <Image
               src={src}
@@ -80,12 +103,11 @@ export const ImageViewerModal: React.FC<ImageViewerModalProps> = ({
               height={600}
               className="object-contain"
               style={{
-                transform: `scale(${zoomLevel})`,
-                transition: 'transform 0.25s ease-in-out'
+                transform: `scale(${zoomLevel}) rotate(${rotation}deg)`,
+                transition: 'transform 0.2s ease-in-out'
               }}
             />
           </div>
-          {/* Zoom controls - moved to header */}
         </div>
       </DialogContent>
     </Dialog>

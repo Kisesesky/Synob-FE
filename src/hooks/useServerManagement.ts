@@ -4,9 +4,9 @@ import { INITIAL_SERVERS } from '@/lib/mockData';
 import type { ServerId, CategoryId, ChannelId } from '@/lib/brandedTypes';
 
 export const useServerManagement = (
-    setMessages: React.Dispatch<React.SetStateAction<{[key: number]: Message[]}>>,
-    setIsSearching: React.Dispatch<React.SetStateAction<boolean>>,
-    setSearchQuery: React.Dispatch<React.SetStateAction<string>>
+  setMessages: React.Dispatch<React.SetStateAction<{[key: number]: Message[]}>>,
+  setIsSearching: React.Dispatch<React.SetStateAction<boolean>>,
+  setSearchQuery: React.Dispatch<React.SetStateAction<string>>
 ) => {
   const [servers, setServers] = useState<Server[]>(INITIAL_SERVERS);
   const [selectedServer, setSelectedServer] = useState<Server>(

@@ -3,6 +3,7 @@ import type { ServerId, ChannelId, CategoryId, UserId, MessageId } from './brand
 export interface Channel {
   id: ChannelId;
   name: string;
+  memberIds?: UserId[];
 }
 
 export interface Category {
@@ -23,6 +24,9 @@ export interface User {
   id: UserId;
   name: string;
   avatar: string;
+  status?: string;
+  friendIds?: UserId[];
+  incomingFriendRequests?: UserId[];
 }
 
 export interface Message {
@@ -35,4 +39,5 @@ export interface Message {
   thread?: Message[];
   channelId?: ChannelId;
   repliedToMessageId?: MessageId;
+  isPinned?: boolean;
 }

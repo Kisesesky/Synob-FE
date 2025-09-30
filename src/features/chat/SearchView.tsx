@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { groupMessagesByDate } from '../../lib/utils'; // Import groupMessagesByDate
+import { groupMessagesByDate } from '../../lib/utils';
 
 interface DateHeader {
   type: 'dateHeader';
@@ -26,11 +26,11 @@ export const SearchView = () => {
     searchQuery,
     setSearchQuery,
     handleSearch,
-    setIsSearching, // To close the search panel
+    setIsSearching,
     selectedChannel,
     selectedDmChannel,
     viewMode,
-    messages, // messages for all channels
+    messages,
     searchSenderId, setSearchSenderId,
     searchStartDate, setSearchStartDate,
     searchEndDate, setSearchEndDate,
@@ -204,7 +204,7 @@ export const SearchView = () => {
                     msg={msg}
                     prevMsg={prevMsg}
                     isSearchResult={true}
-                    allChannelMessages={currentChannelMessages}
+                    repliedToMessage={msg.repliedToMessageId ? currentChannelMessages.find(m => m.id === msg.repliedToMessageId) || null : null}
                   />
                 );
               }

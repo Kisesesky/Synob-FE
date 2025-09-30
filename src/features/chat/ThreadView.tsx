@@ -22,7 +22,7 @@ export const ThreadView = () => {
     handleCancelEditMessage,
     pendingFile,
     handleRemovePendingFile,
-  } = useAppContext() as AppContextType; // Explicitly cast here
+  } = useAppContext();
   const [reply, setReply] = useState('');
   const threadFileInputRef = useRef<HTMLInputElement>(null);
 

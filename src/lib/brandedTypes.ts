@@ -1,4 +1,3 @@
-
 // Branded types for strong type safety
 export type ServerId = number & { readonly brand: 'ServerId' };
 export type ChannelId = number & { readonly brand: 'ChannelId' };

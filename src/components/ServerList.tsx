@@ -101,7 +101,7 @@ export const ServerList = () => {
             <Button variant='outline' className='w-12 h-12 rounded-full bg-gray-700 hover:bg-green-500 text-white text-xl'>+
             </Button>
           </DialogTrigger>
-          <DialogContent className='sm:max-w-[425px] bg-gray-800 text-white border-gray-700'>
+          <DialogContent className='sm:max-w-[425px] bg-gray-800 text-white'>
             <DialogHeader><DialogTitle>서버 만들기</DialogTitle></DialogHeader>
             <div className='grid gap-4 py-4'>
               <Label htmlFor='name'>서버 이름</Label>

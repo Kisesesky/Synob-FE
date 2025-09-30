@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
-import { Hash, Plus, X, Search, File as FileIcon } from 'lucide-react'; // Import X and Search for cancel and search button
+import { useState, useMemo } from 'react';
+import { Hash, Plus, X, Search, File as FileIcon, Bell, Pin, Megaphone } from 'lucide-react';
+import { toast } from 'sonner';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useAppContext } from '@/contexts/AppContext';
 import { MessageItem } from './MessageItem';
 import { Message } from '@/lib/types';
 import { groupMessagesByDate } from '../../lib/utils';
 import { EmojiPicker } from '@/components/EmojiPicker';
-import { AppContextType } from '@/contexts/AppContext'; // Add this import
 
 interface DateHeader {
   type: 'dateHeader';
@@ -16,6 +17,7 @@ interface DateHeader {
 type GroupedMessageItem = Message | DateHeader;
 
 export const ChatArea = () => {
+  const [isDragging, setIsDragging] = useState(false);
   const {
     selectedChannel,
     messages, // messages for all channels
@@ -38,25 +40,54 @@ export const ChatArea = () => {
     setIsSearching, // Import setIsSearching
     pendingFile,
     handleRemovePendingFile,
+    isPinnedMessagesOpen, setIsPinnedMessagesOpen,
+    isAnnouncementsOpen, setIsAnnouncementsOpen,
+    isNotificationsOpen, setIsNotificationsOpen,
     ...messageItemProps
-  } = useAppContext() as AppContextType; // Explicitly cast here
+  } = useAppContext();
+
+  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      // Create a synthetic event object to pass to handleFileUpload
+      const syntheticEvent = {
+        target: { files: e.dataTransfer.files },
+      } as unknown as React.ChangeEvent<HTMLInputElement>;
+      handleFileUpload(syntheticEvent);
+      e.dataTransfer.clearData();
+    }
+  };
+
   const handleEmojiSelect = (emoji: string) => {
     setCurrentMessage(currentMessage + emoji);
   };
 
-  console.log('ChatArea - currentMessage:', currentMessage); // Debug log
-
   const repliedToAuthor = replyingToMessage ? users[replyingToMessage.authorId] : null;
 
   const activeChannel = viewMode === 'friends' ? selectedDmChannel : selectedChannel;
-  console.log('ChatArea - activeChannel:', activeChannel); // Debug log
 
-  // Define currentChannelMessages here
-  const currentChannelMessages: Message[] = activeChannel ? messages[activeChannel.id] || [] : [];
-  console.log('ChatArea - currentChannelMessages:', currentChannelMessages); // Debug log
+  const channelMembers = activeChannel?.memberIds?.map(id => users[id]).filter(Boolean) || [];
+  const displayedMembers = channelMembers.slice(0, 5); // Show first 3 members
+  const remainingMembersCount = channelMembers.length - displayedMembers.length;
 
-  const groupedMessages = groupMessagesByDate(currentChannelMessages);
-  console.log('ChatArea - groupedMessages:', groupedMessages); // Debug log
+  const currentChannelMessages: Message[] = useMemo(() => activeChannel ? messages[activeChannel.id] || [] : [], [activeChannel, messages]);
+
+  const groupedMessages = useMemo(() => groupMessagesByDate(currentChannelMessages), [currentChannelMessages]);
 
   if (viewMode === 'friends' && !selectedDmChannel) {
     return (
@@ -75,13 +106,52 @@ export const ChatArea = () => {
   }
 
   return (
-    <div className={`flex-1 flex flex-col h-full transition-all duration-300 ease-in-out w-full bg-gray-700 border-l border-gray-800`}>
+    <div 
+      onDragEnter={handleDragEnter}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+      onDragOver={(e) => e.preventDefault()} // Necessary to allow drop
+      className={`flex-1 flex flex-col h-full transition-all duration-300 ease-in-out w-full bg-gray-700 border-l border-gray-800 relative ${isDragging ? 'border-dashed border-4 border-blue-500' : ''}`}>
+      {isDragging && (
+        <div className="absolute inset-0 bg-blue-500 bg-opacity-20 flex items-center justify-center pointer-events-none z-10">
+          <p className="text-white text-2xl font-bold">Drop file to upload</p>
+        </div>
+      )}
       <div className='p-2 border-b border-gray-900 shadow-md flex items-center justify-between'>
         <div className='flex items-center'>
-          {viewMode === 'server' && <Hash className='h-6 w-6 text-gray-400 mr-2'/>}
-          <h2 className='text-xl font-bold text-white'>{activeChannel?.name}</h2>
+          {viewMode === 'server' && <Hash className='h-6 w-6 text-gray-400 mr-2'/>}          <h2 className='text-xl font-bold text-white'>{activeChannel?.name}</h2>
+          <div className="flex items-center ml-4 -space-x-2">
+            {displayedMembers.map(member => (
+              <div key={member.id} className="w-7 h-7 rounded-full bg-gray-600 flex items-center justify-center font-bold text-xs border-2 border-gray-700 z-10" title="member.name">
+                {member.avatar}
+              </div>
+            ))}
+            {remainingMembersCount > 0 && (
+              <Popover>
+                <PopoverTrigger asChild>
+                  <div className="w-7 h-7 rounded-full bg-gray-500 flex items-center justify-center font-bold text-xs border-2 border-gray-700 cursor-pointer z-20" title="View more members">
+                    +{remainingMembersCount}
+                  </div>
+                </PopoverTrigger>
+                <PopoverContent className="bg-gray-800 border-gray-700 text-white p-2">
+                  <h4 className="font-bold mb-2">Channel Members</h4>
+                  <div className="space-y-1">
+                    {channelMembers.slice(3).map(member => (
+                      <div key={member.id} className="flex items-center space-x-2">
+                        <div className='w-6 h-6 rounded-full bg-gray-600 flex items-center justify-center font-bold text-xs'>{member.avatar}</div>
+                        <span>{member.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                </PopoverContent>
+              </Popover>
+            )}
+          </div>
         </div>
         <div className='flex items-center space-x-2'>
+          <Megaphone className='h-6 w-6 text-gray-400 cursor-pointer hover:text-white' onClick={() => setIsAnnouncementsOpen(!isAnnouncementsOpen)}/>
+          <Pin className='h-6 w-6 text-gray-400 cursor-pointer hover:text-white' onClick={() => setIsPinnedMessagesOpen(!isPinnedMessagesOpen)}/>
+          <Bell className='h-6 w-6 text-gray-400 cursor-pointer hover:text-white' onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}/>
           <Search className='h-6 w-6 text-gray-400 cursor-pointer hover:text-white' onClick={() => setIsSearching(true)}/>
         </div>
       </div>
@@ -111,7 +181,7 @@ export const ChatArea = () => {
                 key={msg.id}
                 msg={msg}
                 prevMsg={prevMsg}
-                allChannelMessages={currentChannelMessages}
+                repliedToMessage={msg.repliedToMessageId ? currentChannelMessages.find(m => m.id === msg.repliedToMessageId) || null : null}
                 {...messageItemProps}
               />
             );
@@ -162,7 +232,8 @@ export const ChatArea = () => {
                 console.log('ChatArea - Enter pressed, calling handleSendMessage'); // Debug log
                 handleSendMessage();
               }
-            }} />
+            }} 
+          />
           <EmojiPicker onSelect={handleEmojiSelect} />
         </div>
       </div>

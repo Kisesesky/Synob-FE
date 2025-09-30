@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useState, useRef } from 'react';
 import Image from 'next/image';
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuPortal,
@@ -6,12 +7,14 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { File as FileIcon, Reply as ReplyIcon, MessageSquare as MessageSquareIcon, Smile, Eye as EyeIcon, Download as DownloadIcon, Edit as EditIcon, Trash2 as TrashIcon } from 'lucide-react';
 import type { Message, User } from '@/lib/types';
-import { ImageViewerModal } from '@/components/ImageViewerModal'; // New import
+import { ImageViewerModal } from '@/components/ImageViewerModal';
 import type { MessageId } from '@/lib/brandedTypes';
 import { useAppContext } from '@/contexts/AppContext';
-import { formatTimestamp, parseMarkdownToHtml, replaceEmojiShortcuts } from '../../lib/utils'; // Import formatTimestamp and parseMarkdownToHtml
-import { EMOJI_CATEGORIES } from '../../lib/emojis';
-import { useState, useRef } from 'react';
+import { formatTimestamp, parseMarkdownToHtml, replaceEmojiShortcuts } from '../../lib/utils';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { EMOJI_CATEGORIES } from '@/lib/emojis';
+import { EmojiPickerContent } from '@/components/EmojiPicker';
+import { Pin as PinIcon } from 'lucide-react';
 
 export const ThreadMessageItem = React.memo(({
   msg,
@@ -24,10 +27,10 @@ export const ThreadMessageItem = React.memo(({
   isEditing,
   editedText,
   setEditedText,
-}: { 
-  msg: Message; 
-  author: User; 
-  prevMsg: Message | null; 
+}: {
+  msg: Message;
+  author: User;
+  prevMsg: Message | null;
   onDelete: (messageId: MessageId) => void;
   onEditStart: (message: Message) => void;
   onEditSave: (messageId: MessageId) => void;
@@ -42,7 +45,8 @@ export const ThreadMessageItem = React.memo(({
   const [isImageViewerOpen, setIsImageViewerOpen] = useState(false); // New state
   const [imageViewerSrc, setImageViewerSrc] = useState(''); // New state
   const [imageViewerFileName, setImageViewerFileName] = useState(''); // New state
-  const { 
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
+  const {
     currentUser,
     contextMenu,
     setContextMenu,
@@ -52,8 +56,12 @@ export const ThreadMessageItem = React.memo(({
     threadStack,
     users,
     handleOpenNestedThread,
+    editFileInputRef,
+    editingFile,
+    handleFileEditUpload,
+    handleRemoveEditingFile,
+    togglePinMessage,
   } = useAppContext();
-
   let showAuthor = !prevMsg || prevMsg.authorId !== msg.authorId;
 
   if (!showAuthor && prevMsg && prevMsg.authorId === msg.authorId) {
@@ -124,7 +132,16 @@ export const ThreadMessageItem = React.memo(({
             </div>
           )}
           {isEditing ? (
-            <div className='flex flex-col space-y-2 mt-1'>
+            <div className="w-full">
+              {editingFile && (
+                <div className="mt-2 flex items-center gap-2">
+                  <FileIcon className="h-5 w-5"/>
+                  <span className="text-sm truncate">{editingFile.name}</span>
+                  <button onClick={() => editFileInputRef.current?.click()} className="text-xs bg-gray-700 hover:bg-gray-600 px-2 py-1 rounded">Replace</button>
+                  <button onClick={handleRemoveEditingFile} className="text-xs bg-red-700 hover:bg-red-600 px-2 py-1 rounded">Remove</button>
+                </div>
+              )}
+              <input type="file" ref={editFileInputRef} onChange={handleFileEditUpload} className="hidden" />
               <input
                 type='text'
                 value={editedText}
@@ -136,9 +153,9 @@ export const ThreadMessageItem = React.memo(({
                     onEditCancel();
                   }
                 }}
-                className='bg-gray-700 text-white p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                className='bg-gray-700 text-white p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full mt-1'
               />
-              <div className='flex space-x-2 text-xs text-gray-400'>
+              <div className='flex space-x-2 text-xs text-gray-400 mt-1'>
                 <button onClick={() => onEditCancel()} className='hover:underline'>Cancel</button>
                 <button onClick={() => onEditSave(msg.id)} className='text-blue-500 hover:underline'>Save</button>
               </div>
@@ -272,21 +289,24 @@ export const ThreadMessageItem = React.memo(({
           <DropdownMenuItem onClick={() => handleOpenNestedThread(msg)} className='flex items-center'>
             <MessageSquareIcon className='h-4 w-4 mr-2' /> Thread
           </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => togglePinMessage(msg.id)} className='flex items-center'>
+            <PinIcon className='h-4 w-4 mr-2' /> {msg.isPinned ? 'Unpin Message' : 'Pin Message'}
+          </DropdownMenuItem>
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>Add Reaction</DropdownMenuSubTrigger>
-              <DropdownMenuPortal>
-                <DropdownMenuSubContent className='bg-gray-800 border-gray-700 text-white'>
-                  <DropdownMenuItem onClick={() => handleReactionInThread(msg.id, '👍')}>👍</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleReactionInThread(msg.id, '✅')}>✅</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleReactionInThread(msg.id, '👀')}>👀</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleReactionInThread(msg.id, '❤️')}>❤️</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleReactionInThread(msg.id, '😂')}>😂</DropdownMenuItem>
-                </DropdownMenuSubContent>
-              </DropdownMenuPortal>
+            <DropdownMenuPortal>
+              <DropdownMenuSubContent className='bg-gray-800 border-gray-700 text-white'>
+                <DropdownMenuItem onClick={() => handleReactionInThread(msg.id, '👍')}>👍</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleReactionInThread(msg.id, '✅')}>✅</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleReactionInThread(msg.id, '👀')}>👀</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleReactionInThread(msg.id, '❤️')}>❤️</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setIsPickerOpen(true)}>More...</DropdownMenuItem>
+              </DropdownMenuSubContent>
+            </DropdownMenuPortal>
           </DropdownMenuSub>
           {msg.authorId === currentUser.id && (
             <>
-              {!msg.file && <DropdownMenuItem onClick={() => onEditStart(msg)} className='flex items-center'><EditIcon className='h-4 w-4 mr-2' /> Edit Message</DropdownMenuItem>}
+              <DropdownMenuItem onClick={() => onEditStart(msg)} className='flex items-center'><EditIcon className='h-4 w-4 mr-2' /> Edit Message</DropdownMenuItem>
               <DropdownMenuItem onClick={() => onDelete(msg.id)} className='text-red-500 flex items-center'><TrashIcon className='h-4 w-4 mr-2' /> Delete Message</DropdownMenuItem>
             </>
           )}
@@ -301,6 +321,14 @@ export const ThreadMessageItem = React.memo(({
           onClose={() => setIsImageViewerOpen(false)}
         />
       )}
+      <Dialog open={isPickerOpen} onOpenChange={setIsPickerOpen}>
+        <DialogContent className="bg-transparent border-none shadow-none p-0 w-auto">
+          <EmojiPickerContent onSelect={(emoji) => {
+            handleReactionInThread(msg.id, emoji);
+            setIsPickerOpen(false);
+          }} />
+        </DialogContent>
+      </Dialog>
     </React.Fragment>
   )
 });

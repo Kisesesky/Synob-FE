@@ -6,6 +6,8 @@ import { Toaster } from '@/components/ui/sonner';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
+import { useBackground } from '@/lib/useBackground';
+
 interface LockScreenProps {
   onLogin: () => void;
 }
@@ -14,11 +16,9 @@ export function LockScreen({ onLogin }: LockScreenProps) {
   const [time, setTime] = useState(new Date());
   const [city, setCity] = useState('Loading...');
   const [temperature, setTemperature] = useState<number | null>(null);
-
-  const [password, setPassword] = useState('');
-  const [loginError, setLoginError] = useState('');
   const [contentScale, setContentScale] = useState(0.81);
   const [isMobile, setIsMobile] = useState(false);
+  const { background, isLoading } = useBackground();
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
@@ -79,19 +79,35 @@ export function LockScreen({ onLogin }: LockScreenProps) {
     return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
   };
 
-  const handleLoginAttempt = () => {
-    const correctPassword = process.env.NEXT_PUBLIC_LOCK_PASSWORD || '1234';
-    if (password === correctPassword) {
-      onLogin();
-      toast.success('Logged in successfully!');
-    } else {
-      setLoginError('Incorrect password');
-      toast.error('Incorrect password.');
+  const handleLoginAttempt = async () => {
+    try {
+      const response = await fetch('/api/auth', { method: 'POST' });
+      if (response.ok) {
+        onLogin();
+        toast.success('Logged in successfully!');
+      } else {
+        toast.error('Authentication failed.');
+      }
+    } catch (error) {
+      console.error('Login API error:', error);
+      toast.error('An error occurred during login.');
     }
   };
 
+  if (isLoading) {
+    return <div className="w-full h-screen bg-gray-900 flex items-center justify-center text-white">Loading...</div>;
+  }
+
   return (
-    <main className='relative min-h-screen'>
+    <main 
+      className='relative min-h-screen bg-cover bg-center'
+      style={{ backgroundImage: background?.type === 'photo' ? `url(${background.url})` : undefined }}
+    >
+      {background?.type === 'video' && (
+        <video autoPlay loop muted className="absolute top-0 left-0 w-full h-full object-cover z-[-1]">
+          <source src={background.url} type="video/mp4" />
+        </video>
+      )}
       <Toaster richColors />
       
       {/* Main Clock and Weather Display */}
@@ -125,16 +141,7 @@ export function LockScreen({ onLogin }: LockScreenProps) {
 
             {/* Login/Unlock Form */}
             <div className='mt-8 w-full max-w-xs text-center'>
-              <Input
-                type='password'
-                placeholder='Enter password'
-                className={`mb-4 w-full text-center ${loginError ? 'animate-shake border-red-400' : ''}`}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleLoginAttempt()}
-              />
               <Button onClick={handleLoginAttempt} className='w-full'>Login / Unlock</Button>
-              {loginError && <p className='text-red-400 mt-2'>{loginError}</p>}
             </div>
           </div>
         </div>
