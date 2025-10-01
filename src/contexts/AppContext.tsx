@@ -28,6 +28,8 @@ export interface AppContextType extends UseServerManagementReturn, UseMessageMan
   setIsSearching: React.Dispatch<React.SetStateAction<boolean>>;
   searchQuery: string;
   setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
+  isSettingsModalOpen: boolean;
+  setIsSettingsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 // 2. Create Context
@@ -38,6 +40,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [currentUser] = useState<User>({ id: 1 as UserId, name: 'Me', avatar: 'M', status: 'Online', friendIds: [2 as UserId], incomingFriendRequests: [3 as UserId] });
   const [messages, setMessages] = useState<{ [key: number]: Message[] }>(INITIAL_MESSAGES);
   const [viewMode, setViewMode] = useState<'server' | 'friends'>('server');
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
   const searchManagement = useSearchManagement(INITIAL_SERVERS[0], messages, currentUser);
   const { setIsSearching, setSearchQuery } = searchManagement;
@@ -60,6 +63,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     ...searchManagement,
     ...uiManagement,
     currentUser, users, setUsers, messages, setMessages, viewMode, setViewMode,
+    isSettingsModalOpen, setIsSettingsModalOpen,
   };
 
   return (

@@ -24,6 +24,7 @@ export const metadata: Metadata = {
 };
 
 import { AppProvider } from '@/contexts/AppContext';
+import { ThemeProvider } from '@/contexts/ThemeContext';
 
 export default function RootLayout({
   children,
@@ -31,11 +32,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang='en' className='dark'>
+    <html lang='en'>
       <body className={`${roboto.variable} font-sans antialiased`}>
-        <AppProvider>
-          {children}
-        </AppProvider>
+        <ThemeProvider>
+          <AppProvider>
+            {children}
+          </AppProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

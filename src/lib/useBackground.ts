@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTheme } from '@/contexts/ThemeContext';
 
 // Define the structure of a background object
 export interface BackgroundSelection {
@@ -9,8 +10,6 @@ export interface BackgroundSelection {
   photographer: string;
   alt: string;
 }
-
-const GUEST_STORAGE_KEY = 'contentful-clock-background';
 
 // Default video background
 const DEFAULT_BACKGROUND: BackgroundSelection = {
@@ -23,25 +22,26 @@ const DEFAULT_BACKGROUND: BackgroundSelection = {
 };
 
 export function useBackground() {
-  const [background, setBackground] = useState<BackgroundSelection | null>(DEFAULT_BACKGROUND);
+  const { background: customBackground } = useTheme();
+  const [background, setBackground] = useState<BackgroundSelection | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load background from localStorage on mount
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(GUEST_STORAGE_KEY);
-      if (stored) {
-        setBackground(JSON.parse(stored));
-      } else {
-        setBackground(DEFAULT_BACKGROUND);
-      }
-    } catch (error) {
-      console.error('Error loading background from localStorage:', error);
+    if (customBackground) {
+      // Assuming customBackground is always a photo URL for now
+      setBackground({
+        id: 0,
+        type: 'photo',
+        url: customBackground,
+        thumbnail: '',
+        photographer: '',
+        alt: 'Custom background'
+      });
+    } else {
       setBackground(DEFAULT_BACKGROUND);
-    } finally {
-      setIsLoading(false);
     }
-  }, []);
+    setIsLoading(false);
+  }, [customBackground]);
 
   return {
     background,

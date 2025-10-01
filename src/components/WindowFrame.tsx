@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Minus, X, Maximize2, Minimize2 } from 'lucide-react';
+import { useAppContext } from '@/contexts/AppContext';
 
 interface WindowFrameProps {
   children: React.ReactNode;
@@ -14,6 +15,7 @@ interface WindowFrameProps {
 }
 
 export function WindowFrame({ children, title = 'Application', onClose, onMinimize, onMaximize }: WindowFrameProps) {
+  const { setIsSettingsModalOpen } = useAppContext();
   const [isMaximized, setIsMaximized] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -144,7 +146,7 @@ export function WindowFrame({ children, title = 'Application', onClose, onMinimi
         <Button variant='ghost' size='sm'>File</Button>
         <Button variant='ghost' size='sm'>Edit</Button>
         <Button variant='ghost' size='sm'>View</Button>
-        <Button variant='ghost' size='sm'>Settings</Button>
+        <Button variant='ghost' size='sm' onClick={() => setIsSettingsModalOpen(true)}>Settings</Button>
       </div>
 
       {/* Content Area */}

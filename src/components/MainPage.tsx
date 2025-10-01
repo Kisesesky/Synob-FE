@@ -10,6 +10,7 @@ import { AddFriendDialog } from './AddFriendDialog';
 import { PinnedMessagesPanel } from './PinnedMessagesPanel';
 import { AnnouncementsPanel } from './AnnouncementsPanel';
 import { NotificationsPanel } from './NotificationsPanel';
+import { SettingsModal } from './SettingsModal';
 import { useAppContext } from '@/contexts/AppContext';
 
 export interface MainPageProps {
@@ -17,7 +18,7 @@ export interface MainPageProps {
 }
 
 export function MainPage({ onLogout }: MainPageProps) {
-  const { threadStack, viewMode, isSearching, isPinnedMessagesOpen, isAnnouncementsOpen, isNotificationsOpen } = useAppContext();
+  const { threadStack, viewMode, isSearching, isPinnedMessagesOpen, isAnnouncementsOpen, isNotificationsOpen, isSettingsModalOpen, setIsSettingsModalOpen } = useAppContext();
 
   const isAnyPanelOpen = threadStack.length > 0 || isSearching || isPinnedMessagesOpen || isAnnouncementsOpen || isNotificationsOpen;
 
@@ -52,6 +53,7 @@ export function MainPage({ onLogout }: MainPageProps) {
       </div>
       <UserProfileModal />
       <AddFriendDialog />
+      <SettingsModal open={isSettingsModalOpen} onOpenChange={setIsSettingsModalOpen} />
     </div>
   );
 }
