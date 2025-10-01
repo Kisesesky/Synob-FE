@@ -1,12 +1,12 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Toaster } from '@/components/ui/sonner';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 import { useBackground } from '@/lib/useBackground';
+import { AuthModal } from './AuthModal';
 
 interface LockScreenProps {
   onLogin: () => void;
@@ -18,7 +18,7 @@ export function LockScreen({ onLogin }: LockScreenProps) {
   const [temperature, setTemperature] = useState<number | null>(null);
   const [contentScale, setContentScale] = useState(0.81);
   const [isMobile, setIsMobile] = useState(false);
-  const { background, isLoading } = useBackground();
+  const { background, isLoading: backgroundLoading } = useBackground();
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
@@ -79,22 +79,7 @@ export function LockScreen({ onLogin }: LockScreenProps) {
     return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
   };
 
-  const handleLoginAttempt = async () => {
-    try {
-      const response = await fetch('/api/auth', { method: 'POST' });
-      if (response.ok) {
-        onLogin();
-        toast.success('Logged in successfully!');
-      } else {
-        toast.error('Authentication failed.');
-      }
-    } catch (error) {
-      console.error('Login API error:', error);
-      toast.error('An error occurred during login.');
-    }
-  };
-
-  if (isLoading) {
+  if (backgroundLoading) {
     return <div className="w-full h-screen bg-gray-900 flex items-center justify-center text-white">Loading...</div>;
   }
 
@@ -139,9 +124,9 @@ export function LockScreen({ onLogin }: LockScreenProps) {
               </p>
             </div>
 
-            {/* Login/Unlock Form */}
+            {/* Login/Unlock Button (opens AuthModal) */}
             <div className='mt-8 w-full max-w-xs text-center'>
-              <Button onClick={handleLoginAttempt} className='w-full'>Login / Unlock</Button>
+              <AuthModal onLoginSuccess={onLogin} />
             </div>
           </div>
         </div>

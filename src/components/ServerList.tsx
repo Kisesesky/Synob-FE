@@ -51,7 +51,7 @@ export const ServerList = () => {
   }, [newServerName, newServerImageUrl, setServers, setIsAddServerDialogOpen]);
 
   return (
-    <div className='fixed bottom-3 left-1/2 -translate-x-1/2 w-auto max-w-xl h-16 bg-white/10 backdrop-blur-lg p-1 flex items-center rounded-2xl shadow-lg border border-white/10 pr-16 z-50'>
+    <div className='fixed bottom-3 left-1/2 -translate-x-1/2 w-auto max-w-xl h-16 bg-nature-600 backdrop-blur-lg p-1 flex items-center rounded-2xl shadow-lg border border-white/10 pr-16 z-50'>
       {/* Home Icon */}
       <div className="flex-shrink-0">
         <div onClick={() => setViewMode('friends')} title="Friends"
@@ -98,7 +98,7 @@ export const ServerList = () => {
       <div className="absolute right-1 top-1/2 -translate-y-1/2 z-50">
         <Dialog open={isAddServerDialogOpen} onOpenChange={setIsAddServerDialogOpen}>
           <DialogTrigger asChild>
-            <Button variant='outline' className='w-12 h-12 rounded-full bg-gray-700 hover:bg-green-500 text-white text-xl'>+
+            <Button className='w-12 h-12 rounded-full bg-gray-700 hover:bg-green-500 text-white text-xl'>+
             </Button>
           </DialogTrigger>
           <DialogContent className='sm:max-w-[425px] bg-gray-800 text-white'>

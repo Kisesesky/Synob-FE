@@ -19,5 +19,17 @@ export default function LoginPage() {
     }
   }, [router]);
 
-  return <LockScreen onLogin={handleLogin} />;
+  return (
+    <>
+      <LockScreen onLogin={handleLogin} />
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
+        <button
+          onClick={handleLogin}
+          className="px-4 py-2 bg-nature-800 text-white rounded-md shadow-lg hover:bg-nature-900 transition-colors"
+        >
+          Bypass Login (Dev Only)
+        </button>
+      </div>
+    </>
+  );
 }
