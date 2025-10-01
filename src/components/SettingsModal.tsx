@@ -24,17 +24,18 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
     { color: 'red', className: 'bg-red-500' },
     { color: 'green', className: 'bg-green-500' },
     { color: 'yellow', className: 'bg-yellow-500' },
+    { color: 'white', className: 'bg-white-500' },
   ];
 
   const predefinedBackgrounds = [
-    'https://images.unsplash.com/photo-1503614472-8c93d56e2305?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-    'https://images.unsplash.com/photo-1557683316-973673baf923?q=80&w=2629&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+    'https://i.pinimg.com/originals/c3/6b/31/c36b31dd8a929f4102bbc7998b18e5d2.gif',
+    'https://i.pinimg.com/originals/0b/5c/c0/0b5cc024841accd9a31a7b2daeb0e57b.gif',
     'https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
   ];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="bg-white dark:bg-gray-800 text-black dark:text-white">
         <DialogHeader>
           <DialogTitle>Settings</DialogTitle>
         </DialogHeader>
@@ -54,7 +55,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
         </div>
         <div className="mt-4">
           <h3 className="text-lg font-medium">Color</h3>
-          <p className="text-sm text-muted-foreground">Customize the primary color of the application.</p>
+          <p className="text-sm text-muted-foreground">Customize the primary color of the application. This works independently of the theme setting.</p>
           <div className="flex items-center space-x-2 mt-2">
             {colors.map((col) => (
               <div

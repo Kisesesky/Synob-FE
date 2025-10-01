@@ -25,9 +25,9 @@ export default function LoginPage() {
       <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
         <button
           onClick={handleLogin}
-          className="px-4 py-2 bg-nature-800 text-white rounded-md shadow-lg hover:bg-nature-900 transition-colors"
+          className="px-4 py-2 bg-nature-800 text-sm backdrop-blur-sm text-white font-semibold rounded-md shadow-lg transition-colors"
         >
-          Bypass Login (Dev Only)
+          Login (Dev Only)
         </button>
       </div>
     </>

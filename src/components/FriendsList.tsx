@@ -18,9 +18,9 @@ export const FriendsList = React.memo(() => {
   );
 
   return (
-    <div className='w-72 bg-gray-800 text-gray-300 flex flex-col'>
-      <div className='p-3 border-b border-gray-900'>
-        <h2 className='text-lg font-bold text-white'>Friends</h2>
+    <div className='w-72 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-300 flex flex-col'>
+      <div className='p-3 border-b border-gray-200 dark:border-gray-900'>
+        <h2 className='text-lg font-bold text-black dark:text-white'>Friends</h2>
         <div className="mt-2">
             <Button onClick={() => setIsAddFriendOpen(true)} className="w-full bg-green-600 hover:bg-green-700 text-white">Add Friend</Button>
         </div>
@@ -30,20 +30,20 @@ export const FriendsList = React.memo(() => {
         {/* Pending Requests */}
         {pendingRequests.length > 0 && (
           <div>
-            <h3 className='text-xs font-bold uppercase text-gray-400 px-1 mb-2'>Pending - {pendingRequests.length}</h3>
+            <h3 className='text-xs font-bold uppercase text-gray-700 dark:text-gray-400 px-1 mb-2'>Pending - {pendingRequests.length}</h3>
             <div className='space-y-2'>
               {pendingRequests.map(user => (
-                <div key={user.id} className='flex items-center justify-between p-2 rounded-md hover:bg-gray-700'>
+                <div key={user.id} className='flex items-center justify-between p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700'>
                   <div className="flex items-center">
-                    <div className='w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center font-bold flex-shrink-0'>{user.avatar}</div>
+                    <div className='w-8 h-8 rounded-full bg-gray-400 dark:bg-gray-600 flex items-center justify-center font-bold flex-shrink-0'>{user.avatar}</div>
                     <div className="ml-2">
-                      <p className="font-semibold text-white">{user.name}</p>
-                      <p className="text-xs text-gray-400">Incoming Friend Request</p>
+                      <p className="font-semibold text-black dark:text-white">{user.name}</p>
+                      <p className="text-xs text-gray-700 dark:text-gray-400">Incoming Friend Request</p>
                     </div>
                   </div>
                   <div className="flex items-center">
-                    <Button onClick={() => acceptFriendRequest(user.id)} variant="ghost" size="icon" className="h-8 w-8 text-green-500 hover:bg-gray-600"><Check /></Button>
-                    <Button onClick={() => declineFriendRequest(user.id)} variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:bg-gray-600"><X /></Button>
+                    <Button onClick={() => acceptFriendRequest(user.id)} variant="ghost" size="icon" className="h-8 w-8 text-green-500 hover:bg-gray-200 dark:hover:bg-gray-600"><Check /></Button>
+                    <Button onClick={() => declineFriendRequest(user.id)} variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:bg-gray-200 dark:hover:bg-gray-600"><X /></Button>
                   </div>
                 </div>
               ))}
@@ -53,25 +53,25 @@ export const FriendsList = React.memo(() => {
 
         {/* All Friends */}
         <div>
-          <h3 className='text-xs font-bold uppercase text-gray-400 px-1 mb-2'>All Friends - {filteredFriends.length}</h3>
+          <h3 className='text-xs font-bold uppercase text-gray-700 dark:text-gray-400 px-1 mb-2'>All Friends - {filteredFriends.length}</h3>
           <div className='space-y-1'>
             {filteredFriends.map(friend => (
               <React.Fragment key={friend.id}>
                 <div 
-                  className='flex items-center space-x-3 p-2 rounded-md hover:bg-gray-700 cursor-pointer'
+                  className='flex items-center space-x-3 p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer'
                   onClick={() => handleDmChannelSelect(friend.id)}
                   onContextMenu={(e) => { e.preventDefault(); setFriendContextMenu({ id: friend.id, x: e.clientX, y: e.clientY }); }}
                 >
-                  <div className='w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center font-bold flex-shrink-0'>{friend.avatar}</div>
+                  <div className='w-8 h-8 rounded-full bg-gray-400 dark:bg-gray-600 flex items-center justify-center font-bold flex-shrink-0'>{friend.avatar}</div>
                   <div>
-                    <span className='font-semibold text-white'>{friend.name}</span>
-                    <p className='text-sm text-gray-400'>{friend.status || ''}</p>
+                    <span className='font-semibold text-black dark:text-white'>{friend.name}</span>
+                    <p className='text-sm text-gray-700 dark:text-gray-400'>{friend.status || ''}</p>
                   </div>
                 </div>
                 {friendContextMenu?.id === friend.id && (
                   <DropdownMenu open={true} onOpenChange={(isOpen) => !isOpen && setFriendContextMenu(null)}>
                     <DropdownMenuContent 
-                      className='bg-gray-800 border-gray-700 text-white'
+                      className='bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-black dark:text-white'
                       style={{ position: 'fixed', top: friendContextMenu.y, left: friendContextMenu.x }}
                       onCloseAutoFocus={(e) => e.preventDefault()} // Prevent focus from returning to the trigger
                     >

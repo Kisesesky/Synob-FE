@@ -80,7 +80,7 @@ export function LockScreen({ onLogin }: LockScreenProps) {
   };
 
   if (backgroundLoading) {
-    return <div className="w-full h-screen bg-gray-900 flex items-center justify-center text-white">Loading...</div>;
+    return <div className="w-full h-screen bg-white dark:bg-gray-900 flex items-center justify-center text-black dark:text-white">Loading...</div>;
   }
 
   return (
@@ -125,7 +125,7 @@ export function LockScreen({ onLogin }: LockScreenProps) {
             </div>
 
             {/* Login/Unlock Button (opens AuthModal) */}
-            <div className='mt-8 w-full max-w-xs text-center'>
+            <div className='mt-8 w-full max-w-xs text-center backdrop-blur-lg'>
               <AuthModal onLoginSuccess={onLogin} />
             </div>
           </div>

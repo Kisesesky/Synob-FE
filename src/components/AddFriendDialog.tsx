@@ -38,7 +38,7 @@ export const AddFriendDialog = () => {
 
   return (
     <Dialog open={isAddFriendOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[425px] bg-gray-800 text-white border-gray-700">
+      <DialogContent className="sm:max-w-[425px] bg-white dark:bg-gray-800 text-black dark:text-white border-gray-200 dark:border-gray-700">
         <DialogHeader>
           <DialogTitle>Add Friend</DialogTitle>
           <DialogDescription>
@@ -53,7 +53,7 @@ export const AddFriendDialog = () => {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-              className="bg-gray-700 border-gray-600"
+              className="bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-black dark:text-white"
             />
             <Button onClick={handleSearch}>Search</Button>
           </div>
@@ -61,9 +61,9 @@ export const AddFriendDialog = () => {
             <p className="text-red-500 text-sm">User not found.</p>
           )}
           {searchResult && searchResult !== 'not_found' && (
-            <div className="flex items-center justify-between p-2 rounded-md bg-gray-700">
+            <div className="flex items-center justify-between p-2 rounded-md bg-gray-100 dark:bg-gray-700">
               <div className="flex items-center">
-                <div className='w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center font-bold flex-shrink-0'>{searchResult.avatar}</div>
+                <div className='w-8 h-8 rounded-full bg-gray-400 dark:bg-gray-600 flex items-center justify-center font-bold flex-shrink-0'>{searchResult.avatar}</div>
                 <p className="ml-2 font-semibold">{searchResult.name}</p>
               </div>
               <Button onClick={handleSendRequest} size="sm">Send Request</Button>

@@ -58,13 +58,12 @@ export const ServerList = () => {
           className={`w-12 h-12 rounded-2xl flex items-center justify-center cursor-pointer text-xl font-bold transition-all duration-200
           ${viewMode === 'friends' 
             ? 'bg-blue-600' 
-            : 'bg-gray-700 hover:bg-blue-500 hover:-translate-y-2'}`}>
-          <Home />
+            : 'bg-gray-200 dark:bg-gray-700 hover:bg-blue-500 hover:-translate-y-2 text-black dark:text-white'}>`}>
+          <Home className='text-black dark:text-white'/>
         </div>
       </div>
-      {/* Separator */}
       <div className="flex-shrink-0">
-        <hr className='w-px h-12 border-l border-gray-700 mx-1' />
+        <hr className='w-px h-12 border-l border-gray-300 dark:border-gray-700 mx-1' />
       </div>
 
       {/* Embla Carousel for Servers */}
@@ -76,7 +75,7 @@ export const ServerList = () => {
                 className={`w-12 h-12 rounded-2xl flex items-center justify-center cursor-pointer text-xl font-bold transition-all duration-200
                 ${viewMode === 'server' && selectedServer.id === server.id
                   ? 'bg-blue-600'
-                  : 'bg-gray-700 hover:bg-blue-500 hover:-translate-y-1'}`}
+                  : 'bg-gray-200 dark:bg-gray-700 hover:bg-blue-500 hover:-translate-y-1 text-black dark:text-white'}`}
               >
                 {server.imageUrl ? (
                   <Image src={server.imageUrl} alt={server.name} width={48} height={48} className="object-cover w-full h-full rounded-2xl" />
@@ -92,22 +91,22 @@ export const ServerList = () => {
 
       {/* Separator */}
       <div className="flex-shrink-0">
-        <hr className='w-px h-12 border-l border-gray-700 mx-1' />
+        <hr className='w-px h-12 border-l border-gray-300 dark:border-gray-700 mx-1' />
       </div>
       {/* Add Server Button */}
       <div className="absolute right-1 top-1/2 -translate-y-1/2 z-50">
         <Dialog open={isAddServerDialogOpen} onOpenChange={setIsAddServerDialogOpen}>
           <DialogTrigger asChild>
-            <Button className='w-12 h-12 rounded-full bg-gray-700 hover:bg-green-500 text-white text-xl'>+
+            <Button className='w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-green-500 text-black dark:text-white text-xl'>+
             </Button>
           </DialogTrigger>
-          <DialogContent className='sm:max-w-[425px] bg-gray-800 text-white'>
+          <DialogContent className='sm:max-w-[425px] bg-white dark:bg-gray-800 text-black dark:text-white border-gray-200 dark:border-gray-700'>
             <DialogHeader><DialogTitle>서버 만들기</DialogTitle></DialogHeader>
             <div className='grid gap-4 py-4'>
               <Label htmlFor='name'>서버 이름</Label>
-              <Input id='name' value={newServerName} onChange={(e) => setNewServerName(e.target.value)} className='bg-gray-700 border-gray-600'/>
+              <Input id='name' value={newServerName} onChange={(e) => setNewServerName(e.target.value)} className='bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-black dark:text-white'/>
               <Label htmlFor='imageUrl'>이미지 URL (선택 사항)</Label>
-              <Input id='imageUrl' value={newServerImageUrl} onChange={(e) => setNewServerImageUrl(e.target.value)} className='bg-gray-700 border-gray-600' placeholder='https://example.com/image.png'/>
+              <Input id='imageUrl' value={newServerImageUrl} onChange={(e) => setNewServerImageUrl(e.target.value)} className='bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-black dark:text-white' placeholder='https://example.com/image.png'/>
             </div>
             <DialogFooter><Button type='submit' onClick={addServer}>만들기</Button></DialogFooter>
           </DialogContent>

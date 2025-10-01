@@ -21,19 +21,19 @@ export function UserProfileModal() {
 
   return (
     <Dialog open={!!user} onOpenChange={handleOnOpenChange}>
-      <DialogContent className='sm:max-w-[425px] bg-gray-900 text-white border-gray-700 shadow-2xl'>
+      <DialogContent className='sm:max-w-[425px] bg-white dark:bg-gray-900 text-black dark:text-white border-gray-200 dark:border-gray-700 shadow-2xl'>
         <div className='relative'>
-          <div className='h-24 bg-gray-700 rounded-t-lg' />
-          <div className='absolute top-12 left-6 w-24 h-24 rounded-full bg-gray-800 flex items-center justify-center font-bold text-4xl border-4 border-gray-900'>
+          <div className='h-24 bg-gray-200 dark:bg-gray-700 rounded-t-lg' />
+          <div className='absolute top-12 left-6 w-24 h-24 rounded-full bg-gray-400 dark:bg-gray-800 flex items-center justify-center font-bold text-4xl border-4 border-gray-200 dark:border-gray-900'>
             {user.avatar}
           </div>
         </div>
         <div className='pt-16 pb-4 px-6'>
           <h2 className='text-2xl font-bold'>{user.name}</h2>
-          <p className='text-sm text-gray-400'>Status: Online</p>
-          <hr className='my-4 border-gray-700'/>
+          <p className='text-sm text-gray-700 dark:text-gray-400'>Status: Online</p>
+          <hr className='my-4 border-gray-300 dark:border-gray-700'/>
           <div>
-            <h3 className='text-xs font-bold uppercase text-gray-400 mb-2'>About Me</h3>
+            <h3 className='text-xs font-bold uppercase text-gray-700 dark:text-gray-400 mb-2'>About Me</h3>
             <p className='text-sm'>A very cool user of this chat application.</p>
           </div>
         </div>

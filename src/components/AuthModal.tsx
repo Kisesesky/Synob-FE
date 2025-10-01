@@ -265,15 +265,15 @@ isPasswordStrongEnough, hasPersonalInfoConsent, hasTermsConsent]);
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className='w-full'>Login / Unlock</Button>
+        <Button className='w-full backdrop-blur-lg'>Login / Unlock</Button>
       </DialogTrigger>
       <DialogContent className="w-full max-w-sm p-0 border-none bg-transparent max-h-[90vh]">
-        <Card className="w-full bg-gray-900 text-white border-gray-700">
+        <Card className="w-full bg-white dark:bg-gray-900 text-black dark:text-white border-gray-200 dark:border-gray-700">
           <CardHeader className="text-center">
             <CardTitle className="text-3xl font-bold">
               {isRegisterMode ? '회원가입' : '로그인'}
             </CardTitle>
-            <CardDescription className="text-gray-400">
+            <CardDescription className="text-gray-700 dark:text-gray-400">
               {isRegisterMode ? '새로운 계정을 생성하여 서비스를 이용해보세요.' : '계정에 로그인하여계속하세요.'}
             </CardDescription>
           </CardHeader>
@@ -286,13 +286,13 @@ isPasswordStrongEnough, hasPersonalInfoConsent, hasTermsConsent]);
                     <Label>프로필 사진</Label>
                     <div className="flex flex-col items-center gap-4">
                       <div
-                        className="relative w-28 h-28 rounded-full bg-gray-700 flex items-center justify-center overflow-hidden border-2 border-gray-600 cursor-pointer group"
+                        className="relative w-28 h-28 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center overflow-hidden border-2 border-gray-300 dark:border-gray-600 cursor-pointer group"
                         onClick={() => fileInputRef.current?.click()}
                       >
                         {profileImageUrl ? (
                           <Image src={profileImageUrl} alt="Profile" layout="fill" objectFit="cover" />
                         ) : (
-                          <UserRoundPlus className="w-14 h-14 text-gray-400" />
+                          <UserRoundPlus className="w-14 h-14 text-gray-700 dark:text-gray-400" />
                         )}
                         <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                           <span className="text-white text-sm">
@@ -323,6 +323,7 @@ isPasswordStrongEnough, hasPersonalInfoConsent, hasTermsConsent]);
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                         required
+                        className="bg-gray-100 dark:bg-gray-900 border-gray-300 dark:border-gray-500 text-black dark:text-white"
                       />
                       {username.trim() !== '' && isKoreanConsonantsOnly(username) && (
                         <p className="text-red-500 text-sm mt-1">잘못된 이름입니다.</p>
@@ -363,6 +364,7 @@ isPasswordStrongEnough, hasPersonalInfoConsent, hasTermsConsent]);
                           }}
                           required
                           disabled={isEmailVerified || isSendingCode || isVerifyingEmail}
+                          className="bg-gray-100 dark:bg-gray-900 border-gray-300 dark:border-gray-500 text-black dark:text-white"
                         />
                         <Button
                           type="button"
@@ -377,11 +379,11 @@ isPasswordStrongEnough, hasPersonalInfoConsent, hasTermsConsent]);
                         <p className="text-red-500 text-sm mt-1">유효한 이메일 형식이 아닙니다.</p>
                       )}
                       {showEmailHints && filteredEmailHints.length > 0 && (
-                        <div className="absolute z-10 w-full bg-gray-700 border border-gray-600 rounded-md mt-1 max-h-40 overflow-y-auto">
+                        <div className="absolute z-10 w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md mt-1 max-h-40 overflow-y-auto">
                           {filteredEmailHints.map((domain, index) => (
                             <div
                               key={domain}
-                              className={`px-3 py-2 cursor-pointer hover:bg-gray-600 ${emailHintIndex === index ? 'bg-gray-600' : ''}`}
+                              className={`px-3 py-2 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600 ${emailHintIndex === index ? 'bg-gray-200 dark:bg-gray-600' : ''}`}
                               onMouseDown={(e) => {
                                 e.preventDefault(); // Prevent input blur
                                 const [localPart] = email.split('@');
@@ -404,14 +406,15 @@ isPasswordStrongEnough, hasPersonalInfoConsent, hasTermsConsent]);
                             onChange={(e) => setVerificationCode(e.target.value)}
                             required
                             disabled={isVerifyingEmail}
+                            className="bg-gray-100 dark:bg-gray-900 border-gray-300 dark:border-gray-500 text-black dark:text-white"
                           />
                           <Button
                             type="button"
                             onClick={handleVerifyEmail}
                             disabled={!verificationCode || isVerifyingEmail}
                             className="shrink-0"
-                          >
-                            {isVerifyingEmail ? <Loader2 className="h-4 w-4 animate-spin" /> : '확인'}
+                        >
+                          {isVerifyingEmail ? <Loader2 className="h-4 w-4 animate-spin" /> : '확인'}
                           </Button>
                         </div>
                       )}
@@ -431,18 +434,18 @@ isPasswordStrongEnough, hasPersonalInfoConsent, hasTermsConsent]);
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
                           required
-                          className="pr-10" // Space for the icon
+                          className="pr-10 bg-gray-100 dark:bg-gray-900 border-gray-300 dark:border-gray-500 text-black dark:text-white" // Space for the icon
                         />
                         <button
                           type="button"
-                          className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400"
+                          className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-700 dark:text-gray-400"
                           onClick={() => setShowPassword(prev => !prev)}
                         >
                           {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                         </button>
                       </div>
                       <div className="mt-2">
-                        <div className="h-1 w-full rounded-full bg-gray-600">
+                        <div className="h-1 w-full rounded-full bg-gray-300 dark:bg-gray-600">
                           <div
                             className={`h-full rounded-full transition-all duration-300
                               ${passwordStrength === 0 ? 'w-0' : passwordStrength === 1 ? 'w-1/5 bg-red-500' : passwordStrength === 2 ? 'w-2/5 bg-orange-500' : passwordStrength === 3 ? 'w-3/5 bg-yellow-500' : passwordStrength === 4 ? 'w-4/5 bg-green-500' : 'w-full bg-green-600'}
@@ -464,11 +467,11 @@ isPasswordStrongEnough, hasPersonalInfoConsent, hasTermsConsent]);
                           value={confirmPassword}
                           onChange={(e) => setConfirmPassword(e.target.value)}
                           required
-                          className="pr-10" // Space for the icon
+                          className="pr-10 bg-gray-100 dark:bg-gray-900 border-gray-300 dark:border-gray-500 text-black dark:text-white" // Space for the icon
                         />
                         <button
                           type="button"
-                          className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400"
+                          className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-700 dark:text-gray-400"
                           onClick={() => setShowConfirmPassword(prev => !prev)}
                         >
                           {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -516,6 +519,7 @@ isPasswordStrongEnough, hasPersonalInfoConsent, hasTermsConsent]);
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
                       required
+                      className="bg-gray-100 dark:bg-gray-900 border-gray-300 dark:border-gray-500 text-black dark:text-white"
                     />
                   </div>
                   <div>
@@ -527,6 +531,7 @@ isPasswordStrongEnough, hasPersonalInfoConsent, hasTermsConsent]);
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
+                      className="bg-gray-100 dark:bg-gray-900 border-gray-300 dark:border-gray-500 text-black dark:text-white"
                     />
                   </div>
                   <Button type="submit" className='w-full' disabled={isLoading || !isLoginFormValid}>
@@ -535,10 +540,10 @@ isPasswordStrongEnough, hasPersonalInfoConsent, hasTermsConsent]);
 
                   <div className="relative my-4">
                     <div className="absolute inset-0 flex items-center">
-                      <span className="w-full border-t border-gray-700" />
+                      <span className="w-full border-t border-gray-300 dark:border-gray-700" />
                     </div>
                     <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-gray-800 px-2 text-gray-500">또는</span>
+                      <span className="bg-white dark:bg-gray-800 px-2 text-gray-700 dark:text-gray-500">또는</span>
                     </div>
                   </div>
 
@@ -547,16 +552,16 @@ isPasswordStrongEnough, hasPersonalInfoConsent, hasTermsConsent]);
               )}
             </CardContent>
           </ScrollArea>
-          <div className="text-center text-sm text-gray-400 mt-4 pb-4">
+          <div className="text-center text-sm text-gray-700 dark:text-gray-400 mt-4 pb-4">
             {isRegisterMode ? (
               <>이미 계정이 있으신가요?{' '}
-                <Button variant="link" className="p-0 h-auto text-blue-400 hover:underline" onClick={() => handleModeSwitch(false)}>
+                <Button variant="link" className="p-0 h-auto text-blue-600 dark:text-blue-400 hover:underline" onClick={() => handleModeSwitch(false)}>
                   로그인
                 </Button>
               </>
             ) : (
               <>계정이 없으신가요?{' '}
-                <Button variant="link" className="p-0 h-auto text-blue-400 hover:underline" onClick={() => handleModeSwitch(true)}>
+                <Button variant="link" className="p-0 h-auto text-blue-600 dark:text-blue-400 hover:underline" onClick={() => handleModeSwitch(true)}>
                   회원가입
                 </Button>
               </>

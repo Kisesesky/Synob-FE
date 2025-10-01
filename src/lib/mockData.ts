@@ -8,7 +8,7 @@ export const INITIAL_SERVERS: Server[] = [
     icon: 'SY',
     imageUrl: '', // Placeholder image
     categories: [
-      { id: 1 as CategoryId, name: '채팅', channels: [{ id: 1 as ChannelId, name: '일반', memberIds: [1 as UserId, 2 as UserId, 3 as UserId, 4 as UserId] }, { id: 2 as ChannelId, name: '랜덤', memberIds: [1 as UserId, 2 as UserId] }] },
+      { id: 1 as CategoryId, name: '채팅', channels: [{ id: 1 as ChannelId, name: '일반', memberIds: [1 as UserId, 2 as UserId, 3 as UserId, 4 as UserId, 5 as UserId, 6 as UserId] }, { id: 2 as ChannelId, name: '랜덤', memberIds: [1 as UserId, 2 as UserId] }] },
       { id: 2 as CategoryId, name: '개발', channels: [{ id: 3 as ChannelId, name: '프론트엔드', memberIds: [1 as UserId, 4 as UserId] }, { id: 4 as ChannelId, name: '백엔드', memberIds: [2 as UserId, 3 as UserId] }] },
     ],
   },
@@ -28,6 +28,8 @@ export const INITIAL_USERS: { [id: number]: User } = {
   2: { id: 2 as UserId, name: 'Gemini', avatar: 'G', status: 'Working on a new feature', friendIds: [1 as UserId], incomingFriendRequests: [] },
   3: { id: 3 as UserId, name: 'Admin', avatar: 'A', status: 'In a meeting', friendIds: [], incomingFriendRequests: [] },
   4: { id: 4 as UserId, name: 'User1', avatar: 'U', status: 'Away', friendIds: [], incomingFriendRequests: [] },
+  5: { id: 5 as UserId, name: 'User2', avatar: 'U', status: 'Away', friendIds: [], incomingFriendRequests: [] },
+  6: { id: 6 as UserId, name: 'User3', avatar: 'U', status: 'Away', friendIds: [], incomingFriendRequests: [] },
 };
 
 export const INITIAL_MESSAGES: { [key: number]: Message[] } = {

@@ -22,11 +22,11 @@ export const PinnedMessagesPanel = () => {
   console.log(`PinnedMessagesPanel: Found ${pinnedMessages.length} pinned messages.`);
 
   return (
-    <div className="w-[40%] bg-gray-900 border-l border-gray-700 flex flex-col z-10">
-      <div className="p-3 border-b border-gray-700 flex justify-between items-center">
-        <h3 className="font-bold text-white flex items-center"><Pin className="h-5 w-5 mr-2"/> Pinned Messages</h3>
+    <div className="w-[40%] bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-700 flex flex-col z-10">
+      <div className="p-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+        <h3 className="font-bold text-black dark:text-white flex items-center"><Pin className="h-5 w-5 mr-2"/> Pinned Messages</h3>
         <button onClick={() => setIsPinnedMessagesOpen(false)}>
-          <X size={20} className="text-white"/>
+          <X size={20} className="text-black dark:text-white"/>
         </button>
       </div>
       
@@ -43,7 +43,7 @@ export const PinnedMessagesPanel = () => {
             ))}
           </div>
         ) : (
-          <p className="text-gray-400 text-center">No pinned messages in this channel.</p>
+          <p className="text-gray-700 dark:text-gray-400 text-center">No pinned messages in this channel.</p>
         )}
       </ScrollArea>
     </div>

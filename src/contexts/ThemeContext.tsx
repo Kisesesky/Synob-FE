@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 
 export type Theme = 'dark' | 'light' | 'system';
-export type PrimaryColor = 'blue' | 'red' | 'green' | 'yellow';
+export type PrimaryColor = 'blue' | 'red' | 'green' | 'yellow' | 'white';
 export type Background = string; // For now, just a URL
 
 interface ThemeProviderState {

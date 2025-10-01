@@ -66,20 +66,20 @@ export const SearchView = () => {
   };
 
   return (
-    <div className='h-full bg-gray-900 border-l border-gray-700 flex flex-col z-10'>
-      <div className='p-3 border-b border-gray-700 flex justify-between items-center'>
+    <div className='h-full bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-700 flex flex-col z-10'>
+      <div className='p-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center'>
         <div className='flex items-center'>
           {hasSearched ? (
             <button onClick={() => setHasSearched(false)} className='mr-2'>
-              <ArrowLeft size={20} className='text-white'/>
+              <ArrowLeft size={20} className='text-black dark:text-white'/>
             </button>
           ) : (
-            <Search size={20} className='text-white mr-2'/>
+            <Search size={20} className='text-black dark:text-white mr-2'/>
           )}
-          <h3 className='font-bold text-white'>Search</h3>
+          <h3 className='font-bold text-black dark:text-white'>Search</h3>
         </div>
         <button onClick={handleCloseSearch}>
-          <X size={20} className='text-white'/>
+          <X size={20} className='text-black dark:text-white'/>
         </button>
       </div>
       
@@ -89,20 +89,19 @@ export const SearchView = () => {
             <input
               type='text'
               placeholder='Search messages...'
-              className='flex-1 bg-gray-800 border-gray-600 text-white rounded-md px-3 py-1 focus:outline-none'
+              className='flex-1 bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-black dark:text-white rounded-md px-3 py-1 focus:outline-none'
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
             />
           </div>
 
-          <div className='p-4 space-y-4 border-b border-gray-800 overflow-y-auto'>
+          <div className='p-4 space-y-4 border-b border-gray-200 dark:border-gray-800 overflow-y-auto'>
             {/* Sender Filter */}
             <div>
-              <Label htmlFor='sender-select' className='text-gray-400 text-sm'>From:</Label>
+              <Label htmlFor='sender-select' className='text-gray-700 dark:text-gray-400 text-sm'>From:</Label>
               <select
-                id='sender-select'
-                className='w-full bg-gray-800 border border-gray-600 text-white rounded-md px-3 py-1 mt-1 focus:outline-none'
+                className='w-full bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-black dark:text-white rounded-md px-3 py-1 mt-1 focus:outline-none'
                 value={searchSenderId || ''}
                 onChange={(e) => setSearchSenderId(e.target.value ? Number(e.target.value) as import('@/lib/brandedTypes').UserId : null)}
               >
@@ -115,18 +114,17 @@ export const SearchView = () => {
 
             {/* Date Range Filter */}
             <div>
-              <Label className='text-gray-400 text-sm'>During:</Label>
+              <Label className='text-gray-700 dark:text-gray-400 text-sm'>During:</Label>
               <div className='flex space-x-2 mt-1'>
                 <Input
                   type='date'
-                  className='flex-1 bg-gray-800 border-gray-600 text-white rounded-md px-3 py-1 focus:outline-none'
-                  value={searchStartDate || ''}
+                  className='flex-1 bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-black dark:text-white rounded-md px-3 py-1 focus:outline-none'
                   onChange={(e) => setSearchStartDate(e.target.value)}
                 />
-                <span className='text-gray-400 flex items-center'>to</span>
+                <span className='text-gray-700 dark:text-gray-400 flex items-center'>to</span>
                 <Input
                   type='date'
-                  className='flex-1 bg-gray-800 border-gray-600 text-white rounded-md px-3 py-1 focus:outline-none'
+                  className='flex-1 bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-black dark:text-white rounded-md px-3 py-1 focus:outline-none'
                   value={searchEndDate || ''}
                   onChange={(e) => setSearchEndDate(e.target.value)}
                 />
@@ -135,10 +133,10 @@ export const SearchView = () => {
 
             {/* Channel Filter */}
             <div>
-              <Label htmlFor='channel-select' className='text-gray-400 text-sm'>In channel:</Label>
+              <Label htmlFor='channel-select' className='text-gray-700 dark:text-gray-400 text-sm'>In channel:</Label>
               <select
                 id='channel-select'
-                className='w-full bg-gray-800 border border-gray-600 text-white rounded-md px-3 py-1 mt-1 focus:outline-none'
+                className='w-full bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-black dark:text-white rounded-md px-3 py-1 mt-1 focus:outline-none'
                 value={searchChannelId || ''}
                 onChange={(e) => setSearchChannelId(e.target.value ? Number(e.target.value) as import('@/lib/brandedTypes').ChannelId : null)}
               >
@@ -158,18 +156,18 @@ export const SearchView = () => {
                   id='exclude-my-messages'
                   checked={excludeMyMessages}
                   onCheckedChange={(checked) => setExcludeMyMessages(checked === true)}
-                  className='border-gray-600'
+                  className='border-gray-300 dark:border-gray-600'
                 />
-                <Label htmlFor='exclude-my-messages' className='text-gray-300'>Exclude my messages</Label>
+                <Label htmlFor='exclude-my-messages' className='text-gray-700 dark:text-gray-300'>Exclude my messages</Label>
               </div>
               <div className='flex items-center space-x-2'>
                 <Checkbox
                   id='only-my-messages'
                   checked={onlyMyMessages}
                   onCheckedChange={(checked) => setOnlyMyMessages(checked === true)}
-                  className='border-gray-600'
+                  className='border-gray-300 dark:border-gray-600'
                 />
-                <Label htmlFor='only-my-messages' className='text-gray-300'>Only my messages</Label>
+                <Label htmlFor='only-my-messages' className='text-gray-700 dark:text-gray-300'>Only my messages</Label>
               </div>
             </div>
             <Button onClick={() => handleSearch()} className='w-full bg-blue-600 hover:bg-blue-700 text-white'>Apply Filters</Button>
@@ -210,11 +208,11 @@ export const SearchView = () => {
               }
             })
           ) : (
-            <div className='text-center text-gray-400'>No results found for &quot;{searchQuery}&quot;</div>
+            <div className='text-center text-gray-700 dark:text-gray-400'>No results found for &quot;{searchQuery}&quot;</div>
           )}
           {hasMoreSearchResults && (
             <div className='flex justify-center mt-4'>
-              <Button onClick={loadMoreSearchResults} className='bg-gray-700 hover:bg-gray-600 text-white'>Load More</Button>
+              <Button onClick={loadMoreSearchResults} className='bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-black dark:text-white'>Load More</Button>
             </div>
           )}
         </div>
