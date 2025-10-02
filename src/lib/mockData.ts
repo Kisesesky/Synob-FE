@@ -24,12 +24,90 @@ export const INITIAL_SERVERS: Server[] = [
 ];
 
 export const INITIAL_USERS: { [id: number]: User } = {
-  1: { id: 1 as UserId, name: 'Me', avatar: 'M', status: 'Online', friendIds: [2 as UserId], incomingFriendRequests: [3 as UserId] },
-  2: { id: 2 as UserId, name: 'Gemini', avatar: 'G', status: 'Working on a new feature', friendIds: [1 as UserId], incomingFriendRequests: [] },
-  3: { id: 3 as UserId, name: 'Admin', avatar: 'A', status: 'In a meeting', friendIds: [], incomingFriendRequests: [] },
-  4: { id: 4 as UserId, name: 'User1', avatar: 'U', status: 'Away', friendIds: [], incomingFriendRequests: [] },
-  5: { id: 5 as UserId, name: 'User2', avatar: 'U', status: 'Away', friendIds: [], incomingFriendRequests: [] },
-  6: { id: 6 as UserId, name: 'User3', avatar: 'U', status: 'Away', friendIds: [], incomingFriendRequests: [] },
+  1: {
+    id: 1 as UserId,
+    fullName: '호야',
+    nickname: '나',
+    email: 'me@example.com',
+    phoneNumber: '010-1111-2222',
+    avatarUrl: 'https://i.pinimg.com/736x/22/8a/da/228adaff2bc066e8fc04218bf72e5225.jpg',
+    backgroundImage: 'https://i.pinimg.com/1200x/ec/8f/43/ec8f43e45eb96934836ae8494f2fd6d8.jpg',
+    status: '온라인',
+    aboutMe: '안녕하세요! 저는 사용자입니다.',
+    lockScreenPassword: 'password123',
+    friendIds: [2 as UserId],
+    incomingFriendRequests: [3 as UserId]
+  },
+  2: {
+    id: 2 as UserId,
+    fullName: '카리나',
+    nickname: '카리나',
+    email: 'Karina@aespa.com',
+    phoneNumber: '010-3333-4444',
+    avatarUrl: 'https://newsimg.sedaily.com/2024/04/24/2D81DZ01NJ_1.jpg',
+    backgroundImage: 'https://img2.sbs.co.kr/img/seditor/VD/2023/05/24/cki1684893587443-640-0.jpg',
+    status: '새 기능 작업 중',
+    aboutMe: 'Google에서 만든 대규모 언어 모델입니다.',
+    lockScreenPassword: 'password123',
+    friendIds: [1 as UserId],
+    incomingFriendRequests: []
+  },
+  3: {
+    id: 3 as UserId,
+    fullName: '장원영',
+    nickname: '장원영',
+    email: 'Won0@ive.com',
+    phoneNumber: '010-5555-6666',
+    avatarUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/2023_MMA_IVE_Wonyoung_1.jpg/250px-2023_MMA_IVE_Wonyoung_1.jpg',
+    backgroundImage: 'https://i.ytimg.com/vi/BLA0BB3zGIc/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLBE23F0bqVLQjUs5Eii93vjLkNjdw',
+    status: '회의 중',
+    aboutMe: '시스템 관리자입니다.',
+    lockScreenPassword: 'password123',
+    friendIds: [],
+    incomingFriendRequests: []
+  },
+  4: {
+    id: 4 as UserId,
+    fullName: '설윤',
+    nickname: '설윤',
+    email: 'Sullyoon@jyp.com',
+    phoneNumber: '010-7777-8888',
+    avatarUrl: 'https://img.hankyung.com/photo/202205/BF.29962850.1.png',
+    backgroundImage: 'https://i.ytimg.com/vi/b_vQPlhivp8/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDHbaHWKCLboOfNjvPUbQ7cUnuNHw',
+    status: '자리 비움',
+    aboutMe: '안녕하세요!',
+    lockScreenPassword: 'password123',
+    friendIds: [],
+    incomingFriendRequests: []
+  },
+  5: {
+    id: 5 as UserId,
+    fullName: '차은우',
+    nickname: '차은우',
+    email: 'cha@astro.com',
+    phoneNumber: '010-9999-0000',
+    avatarUrl: 'https://dimg.donga.com/wps/NEWS/IMAGE/2024/06/10/125352013.2.jpg',
+    backgroundImage: 'https://img.insight.co.kr/static/2022/06/02/700/img_20220602090635_vs9123kk.webp',
+    status: '자리 비움',
+    aboutMe: '안녕하세요!',
+    lockScreenPassword: 'password123',
+    friendIds: [],
+    incomingFriendRequests: []
+  },
+  6: {
+    id: 6 as UserId,
+    fullName: '손흥민',
+    nickname: 'Sony',
+    email: 'Sony@laglaxy.com',
+    phoneNumber: '010-1010-2020',
+    avatarUrl: 'https://thumbnews.nateimg.co.kr/view610///news.nateimg.co.kr/orgImg/my/2025/09/05/2025090420351920134_l.jpg',
+    backgroundImage: 'https://image.isplus.com/data/isp/image/2025/05/22/isp20250522000281.800x.0.jpg',
+    status: '자리 비움',
+    aboutMe: '안녕하세요!',
+    lockScreenPassword: 'password123',
+    friendIds: [],
+    incomingFriendRequests: []
+  },
 };
 
 export const INITIAL_MESSAGES: { [key: number]: Message[] } = {
@@ -45,6 +123,8 @@ export const INITIAL_MESSAGES: { [key: number]: Message[] } = {
     {id: 4 as MessageId, authorId: 3 as UserId, text: '오늘의 공지사항입니다.', timestamp: '2025-09-29T11:30:00.000Z', isPinned: true},
     {id: 5 as MessageId, authorId: 4 as UserId, text: '점심 메뉴 추천해주세요!', timestamp: '2025-09-29T12:00:00.000Z'},
     {id: 6 as MessageId, authorId: 1 as UserId, text: '저는 비빔밥이요!', timestamp: '2025-09-29T12:05:00.000Z', repliedToMessageId: 5 as MessageId},
+    {id: 7 as MessageId, authorId: 5 as UserId, text: '점심 메뉴 추천해주세요!', timestamp: '2025-09-30T12:00:00.000Z'},
+    {id: 8 as MessageId, authorId: 6 as UserId, text: '저는 김밥이요!', timestamp: '2025-09-30T12:00:00.000Z'},
   ],
   2: [
     {id: 7 as MessageId, authorId: 3 as UserId, text: '랜덤 채널에 오신 것을 환영합니다.', timestamp: '2025-09-26T09:00:00.000Z', isPinned: true},

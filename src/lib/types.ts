@@ -22,9 +22,15 @@ export interface Server {
 
 export interface User {
   id: UserId;
-  name: string;
-  avatar: string;
-  status?: string;
+  fullName: string; // 이름
+  nickname?: string; // 별명
+  email?: string;
+  phoneNumber?: string;
+  avatarUrl: string; // 아바타 사진
+  backgroundImage?: string; // 배경 사진
+  status?: string; // 상태
+  aboutMe?: string; // 소개글
+  lockScreenPassword?: string; // 잠금화면 비밀번호 (해싱 필요)
   friendIds?: UserId[];
   incomingFriendRequests?: UserId[];
 }

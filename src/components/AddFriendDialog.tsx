@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useAppContext } from '@/contexts/AppContext';
 import type { User } from '@/lib/types';
+import Image from 'next/image'; // Import Image component
 
 export const AddFriendDialog = () => {
   const { isAddFriendOpen, setIsAddFriendOpen, users, currentUser, sendFriendRequest } = useAppContext();
@@ -14,9 +15,9 @@ export const AddFriendDialog = () => {
 
   const handleSearch = () => {
     if (username.trim() === '') return;
-    const foundUser = Object.values(users).find(u => u.name.toLowerCase() === username.toLowerCase());
+    const foundUser = Object.values(users).find(u => u.fullName.toLowerCase() === username.toLowerCase() || u.nickname?.toLowerCase() === username.toLowerCase());
     
-    if (foundUser && foundUser.id !== currentUser.id) {
+    if (foundUser && foundUser.id !== currentUser?.id) { // Added null check for currentUser
       setSearchResult(foundUser);
     } else {
       setSearchResult('not_found');
@@ -63,8 +64,16 @@ export const AddFriendDialog = () => {
           {searchResult && searchResult !== 'not_found' && (
             <div className="flex items-center justify-between p-2 rounded-md bg-gray-100 dark:bg-gray-700">
               <div className="flex items-center">
-                <div className='w-8 h-8 rounded-full bg-gray-400 dark:bg-gray-600 flex items-center justify-center font-bold flex-shrink-0'>{searchResult.avatar}</div>
-                <p className="ml-2 font-semibold">{searchResult.name}</p>
+                <div className='relative w-8 h-8 rounded-full overflow-hidden bg-gray-400 dark:bg-gray-600 flex-shrink-0'>
+                  {searchResult.avatarUrl ? (
+                    <Image src={searchResult.avatarUrl} alt="Avatar" layout="fill" objectFit="cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center font-bold text-white">
+                      {searchResult.fullName[0]}
+                    </div>
+                  )}
+                </div>
+                <p className="ml-2 font-semibold">{searchResult.fullName} {searchResult.nickname ? `(${searchResult.nickname})` : ''}</p>
               </div>
               <Button onClick={handleSendRequest} size="sm">Send Request</Button>
             </div>

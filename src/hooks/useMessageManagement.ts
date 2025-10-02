@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import type { Message, User, Channel } from '@/lib/types';
 import type { MessageId, UserId, ChannelId } from '@/lib/brandedTypes';
 import { toast } from 'sonner';
@@ -11,6 +11,17 @@ export const useMessageManagement = (
   setMessages: React.Dispatch<React.SetStateAction<{[key: number]: Message[]}>>
 ) => {
   const [users, setUsers] = useState<{ [id: number]: User }>(INITIAL_USERS);
+
+  // Update users state when currentUser changes
+  useEffect(() => {
+    if (currentUser) {
+      setUsers(prevUsers => ({
+        ...prevUsers,
+        [currentUser.id]: currentUser,
+      }));
+    }
+  }, [currentUser]); // Dependency array includes currentUser
+
   const [threadStack, setThreadStack] = useState<Message[]>([]);
   const [dmChannels, setDmChannels] = useState<{ [key: number]: Channel }>({});
   const [selectedDmChannel, setSelectedDmChannel] = useState<Channel | null>(null);

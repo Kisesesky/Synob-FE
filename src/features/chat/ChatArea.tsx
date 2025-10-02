@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import NextImage from 'next/image'; // Renamed import to avoid conflict
 import { Hash, Plus, X, Search, File as FileIcon, Bell, Pin, Megaphone } from 'lucide-react';
 import { toast } from 'sonner';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -82,7 +83,7 @@ export const ChatArea = () => {
   const activeChannel = viewMode === 'friends' ? selectedDmChannel : selectedChannel;
 
   const channelMembers = activeChannel?.memberIds?.map(id => users[id]).filter(Boolean) || [];
-  const displayedMembers = channelMembers.slice(0, 5); // Show first 3 members
+  const displayedMembers = channelMembers.slice(0, 3); // Show first 3 members
   const remainingMembersCount = channelMembers.length - displayedMembers.length;
 
   const currentChannelMessages: Message[] = useMemo(() => activeChannel ? messages[activeChannel.id] || [] : [], [activeChannel, messages]);
@@ -122,8 +123,14 @@ export const ChatArea = () => {
           {viewMode === 'server' && <Hash className='h-6 w-6 text-gray-500 dark:text-gray-400 mr-2'/>}          <h2 className='text-xl font-bold text-black dark:text-white'>{activeChannel?.name}</h2>
           <div className="flex items-center ml-4 -space-x-2">
             {displayedMembers.map(member => (
-              <div key={member.id} className="w-7 h-7 rounded-full bg-gray-400 dark:bg-gray-600 flex items-center justify-center font-bold text-xs border-2 border-white dark:border-gray-700 z-10" title="member.name">
-                {member.avatar}
+              <div key={member.id} className="w-7 h-7 rounded-full overflow-hidden border-2 border-white dark:border-gray-700 z-10" title={member.fullName || member.nickname || 'Unknown'}>
+                {member.avatarUrl ? (
+                  <NextImage src={member.avatarUrl} alt={member.fullName || member.nickname || 'Unknown'} width={28} height={28} objectFit="cover" />
+                ) : (
+                  <div className="w-full h-full bg-gray-400 dark:bg-gray-600 flex items-center justify-center font-bold text-xs">
+                    {(member.fullName || member.nickname || '?')[0]}
+                  </div>
+                )}
               </div>
             ))}
             {remainingMembersCount > 0 && (
@@ -138,8 +145,16 @@ export const ChatArea = () => {
                   <div className="space-y-1">
                     {channelMembers.slice(3).map(member => (
                       <div key={member.id} className="flex items-center space-x-2">
-                        <div className='w-6 h-6 rounded-full bg-gray-400 dark:bg-gray-600 flex items-center justify-center font-bold text-xs'>{member.avatar}</div>
-                        <span>{member.name}</span>
+                        <div className='w-6 h-6 rounded-full overflow-hidden flex-shrink-0'>
+                          {member.avatarUrl ? (
+                            <NextImage src={member.avatarUrl} alt={member.fullName || member.nickname || 'Unknown'} width={24} height={24} objectFit="cover" />
+                          ) : (
+                            <div className="w-full h-full bg-gray-400 dark:bg-gray-600 flex items-center justify-center font-bold text-xs">
+                              {(member.fullName || member.nickname || '?')[0]}
+                            </div>
+                          )}
+                        </div>
+                        <span>{member.fullName || member.nickname || 'Unknown'}</span>
                       </div>
                     ))}
                   </div>
@@ -194,8 +209,16 @@ export const ChatArea = () => {
           <div className='flex items-center justify-between bg-gray-100 dark:bg-gray-700 p-2 rounded-t-lg border-b border-gray-200 dark:border-gray-600'>
             <div className='flex items-center'>
               <span className='text-xs text-gray-700 dark:text-gray-400 mr-2'>Replying to</span>
-              <div className='w-5 h-5 mr-2 rounded-full bg-gray-400 dark:bg-gray-600 flex items-center justify-center font-bold flex-shrink-0 text-xs'>{repliedToAuthor?.avatar}</div>
-              <span className='font-bold text-black dark:text-white mr-2'>{repliedToAuthor?.name}</span>
+              <div className='w-5 h-5 mr-2 rounded-full overflow-hidden flex-shrink-0'>
+                {repliedToAuthor?.avatarUrl ? (
+                  <NextImage src={repliedToAuthor.avatarUrl} alt={repliedToAuthor.fullName || repliedToAuthor.nickname || 'Unknown'} width={20} height={20} objectFit="cover" />
+                ) : (
+                  <div className="w-full h-full bg-gray-400 dark:bg-gray-600 flex items-center justify-center font-bold text-xs">
+                    {(repliedToAuthor?.fullName || repliedToAuthor?.nickname || '?')[0]}
+                  </div>
+                )}
+              </div>
+              <span className='font-bold text-black dark:text-white mr-2'>{repliedToAuthor?.fullName || repliedToAuthor?.nickname || 'Unknown'}</span>
               <span className='text-sm text-gray-700 dark:text-gray-300 truncate'>{replyingToMessage.text?.substring(0, 50)}...</span>
             </div>
             <X className='h-4 w-4 text-gray-700 dark:text-gray-400 cursor-pointer hover:text-gray-900 dark:hover:text-white' onClick={handleCancelReply} />
@@ -224,7 +247,7 @@ export const ChatArea = () => {
           <input type='file' ref={fileInputRef} onChange={handleFileUpload} className='hidden' />
           <Plus className='h-6 w-6 text-gray-700 dark:text-gray-400 mx-2 cursor-pointer hover:text-gray-900 dark:hover:text-white' onClick={() => fileInputRef.current?.click()}/>
           <input type='text'
-            placeholder={replyingToMessage ? `Replying to ${repliedToAuthor?.name}...` : `Message #${activeChannel?.name}`}
+            placeholder={replyingToMessage ? `Replying to ${repliedToAuthor?.fullName || repliedToAuthor?.nickname || 'Unknown'}...` : `Message #${activeChannel?.name}`}
             className='flex-1 bg-transparent focus:outline-none text-black dark:text-white'
             value={currentMessage} onChange={(e) => setCurrentMessage(e.target.value)} onKeyDown={(e) => {
               console.log('ChatArea - KeyDown event, key:', e.key); // Debug log

@@ -17,6 +17,8 @@ import {
   BellOff, ChevronDown, ChevronRight, Hash, Settings
 } from 'lucide-react';
 import { useAppContext } from '@/contexts/AppContext';
+import Image from 'next/image'; // Import Image component
+
 export const ChannelList = ({ onLogout }: { onLogout: () => void }) => {
   const { 
     selectedServer, 
@@ -173,10 +175,14 @@ export const ChannelList = ({ onLogout }: { onLogout: () => void }) => {
           onContextMenu={(e) => { e.preventDefault(); setContextMenu({ type: 'userProfile', id: 'userProfile', x: e.clientX, y: e.clientY }); }}
           className='p-3 border-t border-gray-200 dark:border-gray-900 flex items-center space-x-3 bg-gray-200 dark:bg-gray-900 cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-800'>
           <div className='relative'>
-            <div className='w-8 h-8 rounded-full bg-gray-400 dark:bg-gray-600 flex items-center justify-center font-bold'>{currentUser.avatar}</div>
+            {currentUser?.avatarUrl ? (
+              <Image src={currentUser.avatarUrl} alt="User Avatar" width={32} height={32} className='rounded-full' />
+            ) : (
+              <div className='w-8 h-8 rounded-full bg-gray-400 dark:bg-gray-600 flex items-center justify-center font-bold'>{currentUser?.fullName?.[0] || '?' }</div>
+            )}
             <div className='absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-gray-200 dark:border-gray-850'></div>
           </div>
-          <span className='font-bold'>{currentUser.name}</span>
+          <span className='font-bold'>{currentUser?.fullName || 'Unknown User'}</span>
         </div>
         <DropdownMenu
           open={contextMenu?.type === 'userProfile' && contextMenu.id === 'userProfile'}

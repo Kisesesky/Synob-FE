@@ -4,17 +4,23 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Check, X, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { UserId } from '@/lib/brandedTypes';
+import Image from 'next/image'; // Import Image component
 
 export const FriendsList = React.memo(() => {
   const { users, currentUser, handleDmChannelSelect, acceptFriendRequest, declineFriendRequest, setIsAddFriendOpen, removeFriend } = useAppContext();
   const [searchTerm, setSearchTerm] = useState('');
   const [friendContextMenu, setFriendContextMenu] = useState<{ id: UserId; x: number; y: number } | null>(null);
 
+  // Ensure currentUser is not null before proceeding
+  if (!currentUser) {
+    return <div className="p-3">사용자 정보를 불러오는 중...</div>;
+  }
+
   const friends = (currentUser.friendIds || []).map(id => users[id]).filter(Boolean);
   const pendingRequests = (currentUser.incomingFriendRequests || []).map(id => users[id]).filter(Boolean);
 
   const filteredFriends = friends.filter(user => 
-    user.name.toLowerCase().includes(searchTerm.toLowerCase())
+    (user.fullName.toLowerCase().includes(searchTerm.toLowerCase())) || (user.nickname?.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   return (
@@ -35,9 +41,17 @@ export const FriendsList = React.memo(() => {
               {pendingRequests.map(user => (
                 <div key={user.id} className='flex items-center justify-between p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700'>
                   <div className="flex items-center">
-                    <div className='w-8 h-8 rounded-full bg-gray-400 dark:bg-gray-600 flex items-center justify-center font-bold flex-shrink-0'>{user.avatar}</div>
+                    <div className='relative w-8 h-8 rounded-full overflow-hidden bg-gray-400 dark:bg-gray-600 flex-shrink-0'>
+                      {user.avatarUrl ? (
+                        <Image src={user.avatarUrl} alt="Avatar" layout="fill" objectFit="cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center font-bold text-white">
+                          {user.fullName[0]}
+                        </div>
+                      )}
+                    </div>
                     <div className="ml-2">
-                      <p className="font-semibold text-black dark:text-white">{user.name}</p>
+                      <p className="font-semibold text-black dark:text-white">{user.fullName} {user.nickname ? `(${user.nickname})` : ''}</p>
                       <p className="text-xs text-gray-700 dark:text-gray-400">Incoming Friend Request</p>
                     </div>
                   </div>
@@ -62,9 +76,17 @@ export const FriendsList = React.memo(() => {
                   onClick={() => handleDmChannelSelect(friend.id)}
                   onContextMenu={(e) => { e.preventDefault(); setFriendContextMenu({ id: friend.id, x: e.clientX, y: e.clientY }); }}
                 >
-                  <div className='w-8 h-8 rounded-full bg-gray-400 dark:bg-gray-600 flex items-center justify-center font-bold flex-shrink-0'>{friend.avatar}</div>
+                  <div className='relative w-8 h-8 rounded-full overflow-hidden bg-gray-400 dark:bg-gray-600 flex-shrink-0'>
+                    {friend.avatarUrl ? (
+                      <Image src={friend.avatarUrl} alt="Avatar" layout="fill" objectFit="cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center font-bold text-white">
+                        {friend.fullName[0]}
+                      </div>
+                    )}
+                  </div>
                   <div>
-                    <span className='font-semibold text-black dark:text-white'>{friend.name}</span>
+                    <span className='font-semibold text-black dark:text-white'>{friend.fullName} {friend.nickname ? `(${friend.nickname})` : ''}</span>
                     <p className='text-sm text-gray-700 dark:text-gray-400'>{friend.status || ''}</p>
                   </div>
                 </div>

@@ -41,10 +41,10 @@ yarn-error.log*
 next-env.d.ts
 
 # gemini
-/.gemini
-GEMINI.md
-gemini.md
+# /.gemini
+# GEMINI.md
+# gemini.md
 
-# docs
-/docs
+# # docs
+# /docs
 

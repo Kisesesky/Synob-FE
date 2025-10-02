@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import Image from 'next/image';
+import NextImage from 'next/image';
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuPortal,
   DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubContent,
@@ -108,7 +108,15 @@ export const MessageItem = React.memo(({
         }}
         className={`group relative flex items-start space-x-3 hover:bg-gray-100 dark:hover:bg-gray-800/50 rounded-md ${showAuthor ? 'mt-2' : ''} ${threadReplyCount > 0 || (msg.reactions && Object.keys(msg.reactions).length > 0) ? 'py-2' : 'py-0.5'}`}>
         {showAuthor ? (
-          <div className='w-10 h-10 rounded-full bg-gray-400 dark:bg-gray-600 flex items-center justify-center font-bold flex-shrink-0 cursor-pointer' onClick={(e) => {e.stopPropagation(); setViewingUser(author)}}>{author?.avatar}</div>
+          <div className='w-10 h-10 rounded-full overflow-hidden flex-shrink-0 cursor-pointer' onClick={(e) => {e.stopPropagation(); setViewingUser(author)}}>
+            {author?.avatarUrl ? (
+              <NextImage src={author.avatarUrl} alt={author.fullName || author.nickname || 'Unknown'} width={40} height={40} objectFit="cover" />
+            ) : (
+              <div className="w-full h-full bg-gray-400 dark:bg-gray-600 flex items-center justify-center font-bold">
+                {(author?.fullName || author?.nickname || '?')[0]}
+              </div>
+            )}
+          </div>
         ) : (
           <div className='w-10 h-10'></div>
         )}
@@ -119,14 +127,22 @@ export const MessageItem = React.memo(({
               onClick={() => handleScrollToMessage(repliedToMessage.id)}
             >
               <ReplyIcon size={12} className='mr-1' />
-              <div className='w-4 h-4 mr-1 rounded-full bg-gray-400 dark:bg-gray-600 flex items-center justify-center font-bold flex-shrink-0'>{repliedToAuthor?.avatar}</div>
-              <span className='font-bold mr-1'>{repliedToAuthor.name}:</span>
+              <div className='w-5 h-5 mr-2 rounded-full overflow-hidden flex-shrink-0'>
+                {repliedToAuthor?.avatarUrl ? (
+                  <NextImage src={repliedToAuthor.avatarUrl} alt={repliedToAuthor.fullName || repliedToAuthor.nickname || 'Unknown'} width={20} height={20} objectFit="cover" />
+                ) : (
+                  <div className="w-full h-full bg-gray-400 dark:bg-gray-600 flex items-center justify-center font-bold text-xs">
+                    {(repliedToAuthor?.fullName || repliedToAuthor?.nickname || '?')[0]}
+                  </div>
+                )}
+              </div>
+              <span className='font-bold mr-1'>{repliedToAuthor.fullName || repliedToAuthor.nickname || 'Unknown'}:</span>
               <span>{repliedToMessage.text?.substring(0, 30)}...</span>
             </div>
           )}
           {showAuthor && (
             <div className='flex items-baseline space-x-2'>
-              <span className='font-bold text-black dark:text-white cursor-pointer' onClick={(e) => {e.stopPropagation(); setViewingUser(author)}}>{author?.name}</span>
+              <span className='font-bold text-black dark:text-white cursor-pointer' onClick={(e) => {e.stopPropagation(); setViewingUser(author)}}>{author?.fullName || author?.nickname || 'Unknown'}</span>
               <span className='text-xs text-gray-700 dark:text-gray-400'>{formatTimestamp(msg.timestamp)}</span>
               {isSearchResult && channelName && <span className='text-xs text-gray-700 dark:text-gray-500'>(in #{channelName})</span>}
             </div>
@@ -163,13 +179,15 @@ export const MessageItem = React.memo(({
                   {msg.file.type.startsWith('image/') ? (
                     <button
                       onClick={() => {
-                        setImageViewerSrc(msg.file!.url);
-                        setImageViewerFileName(msg.file!.name);
-                        setIsImageViewerOpen(true);
+                        if (msg.file) { // Explicitly check msg.file again
+                          setImageViewerSrc(msg.file.url || '');
+                          setImageViewerFileName(msg.file.name || '');
+                          setIsImageViewerOpen(true);
+                        }
                       }}
                       className='block cursor-pointer'
                     >
-                      <Image src={msg.file.url} alt={msg.file.name} width={200} height={200} className='rounded-md'/>
+                      <NextImage src={msg.file?.url || ''} alt={msg.file?.name || 'File'} width={200} height={200} className='rounded-md'/>
                     </button>
                   ) : (
                     <a href={msg.file.url} download={msg.file.name} target="_blank" rel="noopener noreferrer" className='flex items-center bg-gray-100 dark:bg-gray-800 p-2 rounded-md border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer'>
@@ -263,8 +281,8 @@ export const MessageItem = React.memo(({
         <DropdownMenuContent onCloseAutoFocus={(e) => e.preventDefault()} className='bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-black dark:text-white'>
           {msg.file && msg.file.type.startsWith('image/') && (
             <DropdownMenuItem onClick={() => {
-              setImageViewerSrc(msg.file!.url);
-              setImageViewerFileName(msg.file!.name);
+              setImageViewerSrc(msg.file?.url || '');
+              setImageViewerFileName(msg.file?.name || '');
               setIsImageViewerOpen(true);
             }} className='flex items-center'>
               <EyeIcon className='h-4 w-4 mr-2' /> View Image
@@ -273,8 +291,8 @@ export const MessageItem = React.memo(({
           {msg.file && (
             <DropdownMenuItem onClick={() => {
               const link = document.createElement('a');
-              link.href = msg.file!.url;
-              link.download = msg.file!.name;
+              link.href = msg.file?.url || '';
+              link.download = msg.file?.name || 'download';
               document.body.appendChild(link);
               link.click();
               document.body.removeChild(link);
