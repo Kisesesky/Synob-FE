@@ -19,7 +19,7 @@
 
 - **ChannelList.tsx:**
   - **구조적 수정:** `Dialog` 및 `DialogContent` 요소의 깨진 JSX 구조를 수정하여 적절한 중첩을 보장하고 각 다이얼로그 블록에 테마를 다시 적용했습니다.
-  - 메인 컨테이너: `bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-300`
+  - 메인 컨테이너: `bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-300`.
   - 서버 이름 헤더: `border-b border-gray-200 dark:border-gray-900`, `hover:bg-gray-200 dark:hover:bg-gray-700`, `text-black dark:text-white`, `Settings` 아이콘 `text-gray-500 dark:text-gray-400`.
   - 드롭다운 메뉴 (`DropdownMenuContent`, `DropdownMenuSubContent`): `bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-black dark:text-white`.
   - 카테고리 헤더: `text-gray-700 dark:text-gray-400`, `hover:text-black dark:hover:text-gray-200`.
@@ -150,4 +150,30 @@
         - 아바타 사진 및 배경 사진 변경 기능 구현 (업로드/선택).
     - `src/lib/types.ts`의 사용자 데이터 모델 업데이트.
     - 사용자 정보 업데이트를 위한 API 연동 준비 (필요 시 `app/api/users/route.ts` 수정).
-    - 관련 상태 관리 로직 (`useUIManagement.ts` 또는 `useUserManagement.ts`) 확장.
+    - 관련 상태 관리 로직 (`useUIManagement.ts` 또는 `useUserManagement.ts`) 확장。
+
+### D. SettingsModal UI/UX 개선
+
+이번 작업에서는 `SettingsModal` 내의 `MyAccountSettings.tsx` 및 `ProfileSettings.tsx` 컴포넌트의 사용자 인터페이스를 개선하여 사용자 경험을 향상시켰습니다.
+
+- **MyAccountSettings.tsx:**
+  - **페이지 제목 추가:** 컴포넌트 상단에 명확한 "내 계정 설정" 제목을 추가하여 페이지의 목적을 명확히 했습니다.
+  - **비밀번호 가시성 토글 구현:** 잠금 화면 비밀번호 입력 필드에 비밀번호를 표시/숨길 수 있는 토글 버튼(Eye/EyeOff 아이콘)을 추가하여 사용 편의성을 높였습니다.
+  - **섹션 시각적 분리:** "기본 정보", "보안", "계정 관리" 섹션 사이에 가로선(`hr`)을 추가하여 시각적 구분을 명확히 했습니다.
+  - **계정 관리 버튼 레이아웃 개선:** "계정 비활성화" 및 "계정 삭제" 버튼을 수직으로 정렬하고 내용에 맞게 너비를 조절하여 가독성과 사용성을 향상시켰습니다.
+
+- **ProfileSettings.tsx:**
+  - **페이지 제목 추가:** 컴포넌트 상단에 명확한 "프로필 설정" 제목을 추가하여 페이지의 목적을 명확히 했습니다.
+  - **섹션 시각적 분리:** "기본 프로필 정보" 및 "프로필 이미지" 섹션 사이에 가로선(`hr`)을 추가하여 시각적 구분을 명확히 했습니다.
+  - **아바타 업로드 UI 개선:**
+    - 아바타 미리보기 영역 자체를 클릭 가능하게 만들고, 호버 시 "아바타 변경" 텍스트 오버레이를 표시하도록 하여 상호작용성을 높였습니다.
+    - 중복되는 "아바타 업로드" 버튼을 제거하여 UI를 간소화했습니다.
+  - **Next.js Image 컴포넌트 사용 일관성 확보:** `next/image`의 `Image` 컴포넌트가 `NextImage`로 일관되게 임포트 및 사용되도록 수정하여 잠재적인 충돌을 방지하고 이미지 렌더링을 최적화했습니다.
+
+## 3. 기타 수정 사항
+
+- **next.config.ts 업데이트:** `next/image` 컴포넌트가 모든 `http` 또는 `https` 소스의 이미지를 로드할 수 있도록 `images.domains` 설정을 `images.remotePatterns`로 변경했습니다.
+- **useMessageManagement.ts 업데이트:** `currentUser` prop이 변경될 때 내부 `users` 상태를 업데이트하는 `useEffect` 훅을 추가하여 사용자 프로필 업데이트가 `ChatArea` 및 `ChannelList`에 올바르게 반영되도록 했습니다.
+- **ChatArea.tsx 및 MessageItem.tsx TypeScript 오류 수정:** `User` 타입에 `avatar` 또는 `name` 속성이 없다는 오류를 `avatarUrl` 및 `fullName` 또는 `nickname`을 사용하도록 수정했습니다. 또한 `msg.file` 속성에 대한 `Object is possibly 'null'` 오류를 optional chaining 및 fallback 값으로 처리했습니다.
+- **ChatArea.tsx 및 MessageItem.tsx 아바타 표시 수정:** 채팅 섹션에서 아바타가 이미지 URL 문자열 대신 `NextImage` 컴포넌트 또는 대체 `div`로 올바르게 표시되도록 수정했습니다.
+- **MessageItem.tsx `currentUser` nullability 수정:** `currentUser`가 `null`일 수 있는 경우 `currentUser.id`에 접근할 때 발생하는 TypeScript 오류를 해결하기 위해, 호버 액션 블록과 컨텍스트 메뉴 액션 블록 모두에서 `currentUser`에 대한 null 검사 후 non-null assertion operator (`!`)를 사용하여 `currentUser.id`에 접근하도록 수정했습니다.

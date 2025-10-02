@@ -179,11 +179,9 @@ export const MessageItem = React.memo(({
                   {msg.file.type.startsWith('image/') ? (
                     <button
                       onClick={() => {
-                        if (msg.file) { // Explicitly check msg.file again
-                          setImageViewerSrc(msg.file.url || '');
-                          setImageViewerFileName(msg.file.name || '');
-                          setIsImageViewerOpen(true);
-                        }
+                        setImageViewerSrc(msg.file?.url || '');
+                        setImageViewerFileName(msg.file?.name || '');
+                        setIsImageViewerOpen(true);
                       }}
                       className='block cursor-pointer'
                     >
@@ -204,7 +202,7 @@ export const MessageItem = React.memo(({
               userIds.length > 0 && (
                 <div key={emoji} onClick={(e) => {e.stopPropagation(); handleReaction(msg.id, emoji)}} 
                   className={`flex items-center space-x-1 bg-gray-100 dark:bg-gray-800/70 rounded-xl px-2 py-1 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600
-                  ${userIds.includes(currentUser.id) ? 'border border-blue-500' : 'border border-transparent'}`}>
+                  ${currentUser && userIds.includes(currentUser.id) ? 'border border-blue-500' : 'border border-transparent'}`}>
                   <span className='text-sm'>{emoji}</span>
                   <span className='text-sm font-semibold'>{userIds.length}</span>
                 </div>
@@ -257,7 +255,7 @@ export const MessageItem = React.memo(({
               <button onClick={() => handleOpenThread(msg)} className='p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-md' title='Thread'>
                 <MessageSquareIcon size={16} />
               </button>
-              {msg.authorId === currentUser.id && (
+              {currentUser && msg.authorId === currentUser!.id && (
                 <>
                   <button onClick={() => handleStartEditMessage(msg)} className='p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-md' title='Edit'>
                     <EditIcon size={16} />
@@ -292,7 +290,7 @@ export const MessageItem = React.memo(({
             <DropdownMenuItem onClick={() => {
               const link = document.createElement('a');
               link.href = msg.file?.url || '';
-              link.download = msg.file?.name || 'download';
+              link.download = msg.file && msg.file.name ? msg.file.name : 'download';
               document.body.appendChild(link);
               link.click();
               document.body.removeChild(link);
@@ -321,7 +319,7 @@ export const MessageItem = React.memo(({
               </DropdownMenuSubContent>
             </DropdownMenuPortal>
           </DropdownMenuSub>
-          {msg.authorId === currentUser.id && (
+          {currentUser && msg.authorId === currentUser!.id && (
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => handleStartEditMessage(msg)} className='flex items-center'><EditIcon className='h-4 w-4 mr-2' /> Edit Message</DropdownMenuItem>

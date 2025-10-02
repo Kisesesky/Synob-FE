@@ -24,8 +24,8 @@ export function useUserManagement() {
         try {
           const result = action();
           resolve(result);
-        } catch (e: any) {
-          setError(e.message || 'An unknown error occurred');
+        } catch (e: unknown) { // Changed 'any' to 'unknown'
+          setError(e instanceof Error ? e.message : 'An unknown error occurred'); // Added type guard
           reject(e);
         } finally {
           setIsLoading(false);
